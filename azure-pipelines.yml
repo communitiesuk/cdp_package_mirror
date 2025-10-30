@@ -17,7 +17,7 @@ jobs:
   steps:
     # Checkout code and persist credentials for System.AccessToken
     - checkout: self
-      persistCredentials: true
+      persistCredentials: "true"
 
     # Use Python 3.12
     - task: UsePythonVersion@0

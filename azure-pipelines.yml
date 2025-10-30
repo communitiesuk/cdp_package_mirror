@@ -8,7 +8,7 @@ pool:
   vmImage: "ubuntu-latest"
 
 variables:
-  FEED_SIMPLE_URL: "https://pkgs.dev.azure.com/$(System.CollectionUri.Split('/')[3])/CTDP-SLT/_packaging/CDP-TST/pypi/simple/"
+  FEED_SIMPLE_URL: "https://pkgs.dev.azure.com/dluhctst/CTDP-SLT/_packaging/CDP-TST/pypi/simple/"
 
 jobs:
 - job: scan_only

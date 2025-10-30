@@ -8,7 +8,6 @@ pool:
   vmImage: "windows-latest"
 
 variables:
-  FEED_SIMPLE_URL: "https://pkgs.dev.azure.com/dluhctst/CTDP-SLT/_packaging/CDP-TST/pypi/simple"
   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 jobs:
@@ -24,7 +23,10 @@ jobs:
       inputs:
         versionSpec: "3.12"
         addToPath: true
-
+    - task: PipAuthenticate@1
+      inputs:
+        artifactFeeds: 'CTDP-SLT/CDP-TST'
+    
     # Install artifacts-keyring and pip-audit globally
     - script: |
         python -m pip install --upgrade pip
@@ -37,7 +39,7 @@ jobs:
     - script: |
         python -m venv .venv
         .venv\Scripts\python.exe -m pip install --upgrade pip
-        .venv\Scripts\python.exe -m pip install -r requirements.txt --index-url "%FEED_SIMPLE_URL%" -vvv
+        .venv\Scripts\python.exe -m pip install -r requirements.txt -vvv
       displayName: "Install dependencies from PyPI + Azure Artifacts feed"
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)

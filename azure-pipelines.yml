@@ -36,16 +36,14 @@ jobs:
     # Create virtual environment and install dependencies
     - script: |
         python -m venv .venv
-        call .venv\Scripts\activate.bat
-        echo Token length: %SYSTEM_ACCESSTOKEN%
-        python -m pip install --upgrade pip
-        pip install requests --index-url "%FEED_SIMPLE_URL%" -vvv
+        .venv\Scripts\python.exe -m pip install --upgrade pip
+        .venv\Scripts\python.exe -m pip install -r requirements.txt --index-url "%FEED_SIMPLE_URL%" -vvv
       displayName: "Install dependencies from PyPI + Azure Artifacts feed"
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials":[{"endpoint":"https://pkgs.dev.azure.com/dluhctst/CTDP-SLT/_packaging/CDP-TST/pypi/simple","username":"AzureDevOps","password":"$(System.AccessToken)"}]}'
         ARTIFACTS_KEYRING_NONINTERACTIVE_MODE: "true"
-        
+
     # Run pip-audit inside the virtual environment
     - script: |
         call .venv\Scripts\activate.bat

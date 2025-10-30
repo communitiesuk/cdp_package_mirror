@@ -28,8 +28,12 @@ jobs:
     # Install authentication tools and pip-audit globally
     - script: |
         python -m pip install --upgrade pip
-        pip install artifacts-keyring pip-audit
+        pip install keyring artifacts-keyring pip-audit
+        import keyring; print("Keyring backend:", keyring.get_keyring())
       displayName: "Install artifacts-keyring + pip-audit"
+      env:
+        ARTIFACTS_KEYRING_NONINTERACTIVE_MODE: "true"
+
 
     # Create virtual environment and install dependencies
     - script: |

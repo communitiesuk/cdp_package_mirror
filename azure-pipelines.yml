@@ -9,6 +9,7 @@ pool:
 
 variables:
   FEED_SIMPLE_URL: "https://pkgs.dev.azure.com/dluhctst/CTDP-SLT/_packaging/CDP-TST/pypi/simple"
+  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 jobs:
 - job: scan_and_install
@@ -34,6 +35,7 @@ jobs:
     - script: |
         python -m venv .venv
         source .venv/bin/activate
+        echo "Token length: ${SYSTEM_ACCESSTOKEN}"
         python -m pip install --upgrade pip
         # Use PyPI as main index, Azure Artifacts feed as extra index
         pip install -r requirements.txt --extra-index-url "$(FEED_SIMPLE_URL)" -vvv

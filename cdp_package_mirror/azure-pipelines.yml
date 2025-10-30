@@ -1,0 +1,38 @@
+trigger: none
+pr:
+  branches:
+    include:
+      - "*"
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  FEED_SIMPLE_URL: "https://pkgs.dev.azure.com/$(System.CollectionUri.Split('/')[3])/CTDP-SLT/_packaging/CDP-TST/pypi/simple/"
+
+jobs:
+- job: scan_only
+  displayName: "Install deps & scan (no promotion)"
+  steps:
+    - checkout: self
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: "3.12"
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install keyring artifacts-keyring pip-audit
+      displayName: "Install auth tooling + pip-audit"
+
+    - script: |
+        python -m venv .venv
+        . .venv/bin/activate
+        pip install -U pip
+        pip install -r requirements.txt --index-url "$(FEED_SIMPLE_URL)"
+      displayName: "Install dependencies from Azure Artifacts feed"
+
+    - script: |
+        . .venv/bin/activate
+        pip-audit || true
+      displayName: "Run pip-audit (optional)"

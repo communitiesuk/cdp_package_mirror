@@ -19,11 +19,12 @@ jobs:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: "3.12"
+        addToPath: true
 
     - script: |
         python -m pip install --upgrade pip
         pip install keyring artifacts-keyring pip-audit
-      displayName: "Install auth tooling"
+      displayName: "Install auth tooling + pip audit"
       env:
         ARTIFACTS_KEYRING_NONINTERACTIVE_MODE: "true"
 
@@ -31,10 +32,15 @@ jobs:
         python -m venv .venv
         . .venv/bin/activate
         pip install -U pip
-        pip install -r requirements.txt --index-url "$(FEED_SIMPLE_URL)"
+        pip config set global.index-url "$(FEED_SIMPLE_URL)"
+        pip install -r requirements.txt
       displayName: "Install dependencies from Azure Artifacts feed"
+      env:
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
     - script: |
-        . .venv/bin/activate
+        source .venv/bin/activate
         pip-audit || true
       displayName: "Run pip-audit"
+      env:
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)

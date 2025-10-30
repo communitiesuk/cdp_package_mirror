@@ -15,6 +15,7 @@ jobs:
   displayName: "Install deps & scan (no promotion)"
   steps:
     - checkout: self
+      persistCredentials: true
 
     - task: UsePythonVersion@0
       inputs:

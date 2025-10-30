@@ -33,7 +33,13 @@ jobs:
       env:
         ARTIFACTS_KEYRING_NONINTERACTIVE_MODE: "true"
         PYTHON_KEYRING_BACKEND: "keyring.backends.null.Keyring"
-
+    # check keyring backend
+    - script: |
+        python - <<EOF
+        import keyring
+        print("Keyring backend:", keyring.get_keyring())
+        EOF
+      displayName: "Check keyring backend"
     # Create virtual environment and install dependencies
     - script: |
         python -m venv .venv

@@ -32,7 +32,7 @@ jobs:
       displayName: "Install artifacts-keyring + pip-audit"
       env:
         ARTIFACTS_KEYRING_NONINTERACTIVE_MODE: "true"
-
+        PYTHON_KEYRING_BACKEND: "keyring.backends.null.Keyring"
 
     # Create virtual environment and install dependencies
     - script: |
@@ -40,13 +40,13 @@ jobs:
         source .venv/bin/activate
         echo "Token length: ${SYSTEM_ACCESSTOKEN}"
         python -m pip install --upgrade pip
-        # Use PyPI as main index, Azure Artifacts feed as extra index
         pip install requests --index-url "$FEED_SIMPLE_URL" -vvv
       displayName: "Install dependencies from PyPI + Azure Artifacts feed"
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials":[{"endpoint":"https://pkgs.dev.azure.com/dluhctst/CTDP-SLT/_packaging/CDP-TST/pypi/simple","username":"AzureDevOps","password":"$(System.AccessToken)"}]}'
         ARTIFACTS_KEYRING_NONINTERACTIVE_MODE: "true"
+        PYTHON_KEYRING_BACKEND: "keyring.backends.null.Keyring"
 
     # Run pip-audit inside the virtual environment
     - script: |
@@ -56,4 +56,4 @@ jobs:
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials":[{"endpoint":"https://pkgs.dev.azure.com/dluhctst/CTDP-SLT/_packaging/CDP-TST/pypi/simple","username":"AzureDevOps","password":"$(System.AccessToken)"}]}'
- 
+        PYTHON_KEYRING_BACKEND: "keyring.backends.null.Keyring"

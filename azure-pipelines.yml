@@ -23,7 +23,9 @@ jobs:
     - script: |
         python -m pip install --upgrade pip
         pip install keyring artifacts-keyring pip-audit
-      displayName: "Install auth tooling + pip-audit"
+      displayName: "Install auth tooling"
+      env:
+        ARTIFACTS_KEYRING_NONINTERACTIVE_MODE: "true"
 
     - script: |
         python -m venv .venv
@@ -35,4 +37,4 @@ jobs:
     - script: |
         . .venv/bin/activate
         pip-audit || true
-      displayName: "Run pip-audit (optional)"
+      displayName: "Run pip-audit"

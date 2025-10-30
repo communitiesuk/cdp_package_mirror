@@ -28,7 +28,7 @@ jobs:
     # Install authentication tools and pip-audit globally
     - script: |
         python -m pip install --upgrade pip
-        pip install keyring artifacts-keyring pip-audit
+        pip install artifacts-keyring pip-audit
       displayName: "Install artifacts-keyring + pip-audit"
 
     # Create virtual environment and install dependencies

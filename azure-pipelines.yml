@@ -49,3 +49,9 @@ jobs:
     #     pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json
     #   displayName: "Run pip-audit"
 
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: 'security_reports'
+        artifactName: 'security-reports'
+        publishLocation: 'Container'
+      displayName: "Publish Scan Report"

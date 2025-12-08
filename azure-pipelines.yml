@@ -37,19 +37,10 @@ jobs:
 
     # 2. Pre Security Check Tasks
     - script: |
-
-        # Fail the script on first error
-        $ErrorActionPreference = 'Stop'
-
-        # Create a common directory for security reports
-        New-Item -ItemType Directory -Path security_reports -Force | Out-Null
-
-        # Initiate new Python virtual environment
-        # Use `py` if you have the Python launcher, else `python`
+        mkdir security_reports
+        
         py -m venv venv
 
-        # Activate the venv
-        # If you get an execution policy error, see the note below.
         .\venv\Scripts\Activate.ps1
 
       displayName: "Pre-Security Check Tasks"

@@ -38,11 +38,8 @@ jobs:
     # 2. Pre Security Check Tasks
     - script: |
         mkdir security_reports
-        
         py -m venv venv
-
         .\venv\Scripts\Activate.ps1
-
       displayName: "Pre-Security Check Tasks"
 
     # Run pip-audit inside the virtual environment

@@ -38,13 +38,14 @@ jobs:
     # 2. Pre Security Check Tasks
     - script: |
         mkdir security_reports
-        py -m venv venv
-        .\venv\Scripts\Activate.ps1
+        python -m venv venv
+        .\venv\Scripts\activate
+        pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json
       displayName: "Pre-Security Check Tasks"
 
-    # Run pip-audit inside the virtual environment
-    - script: |
-        .\venv\Scripts\Activate.ps1
-        pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json
-      displayName: "Run pip-audit"
+    # # Run pip-audit inside the virtual environment
+    # - script: |
+    #     .\venv\Scripts\Activate.ps1
+    #     pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json
+    #   displayName: "Run pip-audit"
 

@@ -4,8 +4,8 @@ pr:
     include:
       - "*"
 
-pool:
-  vmImage: "windows-latest"
+# pool:
+#   vmImage: "windows-latest"
 
 variables:
   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
@@ -39,7 +39,7 @@ jobs:
     - script: |
         mkdir security_reports
         python -m venv venv
-        venv\Scripts\activate.bat
+        source venv/bin/activate
         pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json
       displayName: "Pre-Security Check Tasks"
 

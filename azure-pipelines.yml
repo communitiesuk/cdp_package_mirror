@@ -39,15 +39,9 @@ jobs:
     - script: |
         mkdir security_reports
         python -m venv venv
-        .\venv\Scripts\activate
+        venv\Scripts\activate.bat
         pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json
       displayName: "Pre-Security Check Tasks"
-
-    # # Run pip-audit inside the virtual environment
-    # - script: |
-    #     .\venv\Scripts\Activate.ps1
-    #     pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json
-    #   displayName: "Run pip-audit"
 
     - task: PublishBuildArtifacts@1
       inputs:

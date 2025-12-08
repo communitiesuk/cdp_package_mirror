@@ -35,6 +35,29 @@ jobs:
       env:
         ARTIFACTS_KEYRING_NONINTERACTIVE_MODE: "true"
 
+    # 2. Pre Security Check Tasks
+    - script: |
+        # Exit immediately if any command fails
+        set -e
+        
+        # Create a common directory for security reports
+        mkdir security_reports
+
+        # Initiate new python environment
+        python -m venv venv
+        source venv/bin/activate
+        # pip install pipreqs
+        
+        # # Retrieve top level imports
+        # pipreqs ./src --force --savepath security_reports/requirements.txt
+
+        # # Install direct requirements and sub-dependencies
+        # pip install -r security_reports/requirements.txt
+
+        # # Retrieve full dependencies
+        # pip freeze > security_reports/full_requirements.txt
+      displayName: "Pre-Security Check Tasks"
+
     # Create virtual environment and install dependencies
     - script: |
         python -m venv .venv
@@ -49,9 +72,7 @@ jobs:
     # Run pip-audit inside the virtual environment
     - script: |
         python -m venv .venv
-        # call .venv\Scripts\activate.bat
-        # pip-audit || true
-        pip-audit -r requirements.txt
+        pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json
       displayName: "Run pip-audit"
       # env:
       #   SYSTEM_ACCESSTOKEN: $(System.AccessToken)

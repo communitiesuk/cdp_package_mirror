@@ -40,7 +40,7 @@ jobs:
         mkdir security_reports
         python -m venv venv
         source venv/bin/activate
-        pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json --exit-zero
+        pip-audit -r requirements.txt -f json -o security_reports/pip_audit_report.json
       displayName: "Pre-Security Check Tasks"
 
     - task: PublishBuildArtifacts@1
@@ -49,3 +49,4 @@ jobs:
         artifactName: 'security-reports'
         publishLocation: 'Container'
       displayName: "Publish Scan Report"
+      condition: succeededOrFailed()

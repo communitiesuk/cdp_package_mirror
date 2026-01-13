@@ -1,5 +1,4 @@
-# Azure DevOps PR Scan Pipeline (Simplified)
-
+# Azure DevOps PR Scan Pipeline
 This pipeline installs Python dependencies via your Azure Artifacts feed and runs `pip-audit` for vulnerability scanning. It does **not** promote packages to any view; packages will remain cached in the feed's `@Local` view.
 
 ## Setup Steps
@@ -11,7 +10,7 @@ This pipeline installs Python dependencies via your Azure Artifacts feed and run
 
 2. **Pipeline Configuration**
    - Add this `azure-pipelines.yml` to your repo.
-   - Enable **Allow scripts to access the OAuth token** in pipeline settings (optional if you later add promotion logic).
+   - Enable **Allow scripts to access the OAuth token** in pipeline settings.
 
 3. **Permissions**
    - The pipeline needs read access to the feed. Typically, the project Build Service identity already has this.
@@ -22,5 +21,5 @@ This pipeline installs Python dependencies via your Azure Artifacts feed and run
      - Run `pip-audit` to check for vulnerabilities.
 
 ## Variables
-- `FEED_SIMPLE_URL` is set to your project-scoped feed's PyPI simple endpoint:
+- `FEED_SIMPLE_URL` is set to the project-scoped feed's PyPI simple endpoint:
   `https://pkgs.dev.azure.com/<ORG>/CTDP-SLT/_packaging/CDP-TST/pypi/simple/`

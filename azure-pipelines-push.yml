@@ -41,7 +41,6 @@ steps:
     fi
   displayName: Detect newly added dependencies
 
-
 - script: |
     mkdir -p audit-report
 

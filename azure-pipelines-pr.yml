@@ -1,0 +1,74 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  # use ubuntu to mirror with Databricks compute vm
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+  fetchDepth: 0
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.11'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install pip-audit
+  displayName: Install pip-audit
+
+- script: |
+    git fetch origin main
+
+    git show origin/main:requirements.txt > old_requirements.txt || touch old_requirements.txt
+    cp requirements.txt new_requirements.txt
+
+    diff old_requirements.txt new_requirements.txt | \
+      grep "^>" | sed 's/^> //' > added_packages.txt || true
+
+    echo "New dependencies detected:"
+    cat added_packages.txt || true
+
+    if [ ! -s added_packages.txt ]; then
+      echo "ERROR: No new dependencies detected in requirements.txt."
+      echo "This pipeline must only be used when adding new dependencies."
+      exit 1
+    fi
+  displayName: Detect newly added dependencies
+
+
+- script: |
+    mkdir -p audit-report
+
+    if [ -s added_packages.txt ]; then
+      echo "Running pip-audit..."
+      pip-audit \
+        -r added_packages.txt \
+        --format json \
+        --output audit-report/pip-audit-report.json || true
+    else
+      echo "No new dependencies" > audit-report/pip-audit-report.json
+    fi
+  displayName: Run pip-audit and generate report
+
+# Publish report EVEN IF audit fails
+- task: PublishPipelineArtifact@1
+  displayName: Publish pip-audit report
+  inputs:
+    targetPath: audit-report
+    artifact: pip-audit-report
+  condition: always()
+
+# Fail pipeline if vulnerabilities exist
+- script: |
+    if [ -s added_packages.txt ]; then
+      pip-audit -r added_packages.txt
+    else
+      echo "No new dependencies — skipping failure check."
+    fi
+  displayName: Enforce security gate

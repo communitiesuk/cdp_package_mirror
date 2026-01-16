@@ -17,23 +17,57 @@ steps:
   inputs:
     versionSpec: '3.11'
 
+# Authenticate pip to Azure Artifacts feed (ensure pip installs from private feed)
+- task: PipAuthenticate@1
+  inputs:
+    artifactFeeds: $(FEED_NAME)
+
+# Install dependencies directly from Azure Artifacts feed (which proxies from PyPI if necessary)
 - script: |
     python -m pip install --upgrade pip
-    pip install twine
-  displayName: Install twine
+    pip install -r requirements.txt
+  displayName: Install dependencies from Azure Artifacts feed
 
-- script: |
-    mkdir -p packages
-    pip download -r requirements.txt -d packages
-  displayName: Download approved packages from PyPI
+# No need to manually download or upload anything since Azure Artifacts handles the caching
 
-- script: |
-    echo "Publishing packages to Azure Artifacts feed..."
-    twine upload \
-      --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload \
-      -u __token__ \
-      -p $SYSTEM_ACCESSTOKEN \
-      packages/*
-  env:
-    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: Publish to Azure Artifacts
+
+# trigger:
+#   branches:
+#     include:
+#       - main
+
+# pool:
+#   vmImage: ubuntu-latest
+
+# variables:
+#   FEED_NAME: cdporgfeed
+#   ORG_NAME: dluhctst
+
+# steps:
+# - checkout: self
+
+# - task: UsePythonVersion@0
+#   inputs:
+#     versionSpec: '3.11'
+
+# - script: |
+#     python -m pip install --upgrade pip
+#     pip install twine
+#   displayName: Install twine
+
+# - script: |
+#     mkdir -p packages
+#     pip download -r requirements.txt -d packages
+#   displayName: Download approved packages from PyPI
+
+# - script: |
+#     echo "Publishing packages to Azure Artifacts feed..."
+#     twine upload \
+#       --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload \
+#       -u __token__ \
+#       -p $SYSTEM_ACCESSTOKEN \
+#       packages/*
+#   env:
+#     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+#   displayName: Publish to Azure Artifacts
+

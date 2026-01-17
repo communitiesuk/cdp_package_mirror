@@ -24,7 +24,7 @@ steps:
 
 # Install pip, twine and azure artifact keyring
 - script: |
-    python -m pip install --upgrade pip twine keyring artifacts-keyring --index-url https://pypi.org/simple
+    python -m pip install --upgrade pip twine==6.0.1 keyring artifacts-keyring --index-url https://pypi.org/simple
   displayName: Install packaging tools
 
 # Download packages from PyPI into a temp folder

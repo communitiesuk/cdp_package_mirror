@@ -67,6 +67,9 @@ steps:
 
 # Upload newly downloaded packages to Azure Universal Package Feed
 - script: |
+    # Enable script to exit on error
+    set -e
+    
     # Define Universal Package Feed URL and organization
     FEED_URL="https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/universal/upload/"
 

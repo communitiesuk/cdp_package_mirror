@@ -64,7 +64,7 @@ steps:
 # Upload newly downloaded packages to Azure Universal Package Feed
 - script: |
     # login
-    az devops login --token $SYSTEM_ACCESSTOKEN
+    echo $SYSTEM_ACCESSTOKEN | az devops login --organization https://dev.azure.com/$(ORG_NAME)/
 
     # Define Universal Package Feed URL and organization
     FEED_URL="https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/universal/upload/"

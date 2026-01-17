@@ -17,17 +17,17 @@ steps:
   inputs:
     versionSpec: '3.11'
 
-# Authenticate pip/twine to Azure Artifacts feed
-- task: PipAuthenticate@1
-  inputs:
-    artifactFeeds: $(FEED_NAME)
+# # Authenticate pip/twine to Azure Artifacts feed
+# - task: PipAuthenticate@1
+#   inputs:
+#     artifactFeeds: $(FEED_NAME)
 
 # Authenticate Azure CLI
 - script: |
       pip install --upgrade pip --target /opt/az/lib/python3.13/site-packages/ --index-url https://pypi.org/simple
       echo $(System.AccessToken) | az devops login
   displayName: 'Login to Azure DevOps CLI'
-  
+
 # Install pip, twine and azure artifact keyring (tmp remove "keyring artifacts-keyring")
 - script: |
     python -m pip install --upgrade pip twine==6.0.1 --index-url https://pypi.org/simple

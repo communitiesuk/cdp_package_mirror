@@ -72,12 +72,14 @@ steps:
 
     # Loop through each package in the downloaded_packages folder
     for PACKAGE_FILE in downloaded_packages/*; do
-      echo $PACKAGE_FILE
+      
       # Get the package name and version from the file path
       PACKAGE_NAME=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\1/')
       PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\2/')
+      
+      ABSOLUTE_PATH="$(pwd)/$PACKAGE_FILE"
 
-      echo "Processing package: $PACKAGE_NAME version: $PACKAGE_VERSION"
+      echo "Processing package: $ABSOLUTE_PATH"
 
       # Upload the package to the Universal Package Feed
       echo "Uploading $PACKAGE_NAME version $PACKAGE_VERSION to $FEED_URL"

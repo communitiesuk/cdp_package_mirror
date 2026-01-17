@@ -15,16 +15,16 @@ steps:
 
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.10.10'
+    versionSpec: '3.11'
 
 # Authenticate pip/twine to Azure Artifacts feed
 - task: PipAuthenticate@1
   inputs:
     artifactFeeds: $(FEED_NAME)
 
-# Install pip and twine
+# Install pip, twine and azure artifact keyring
 - script: |
-    python -m pip install --upgrade pip twine pkginfo --index-url https://pypi.org/simple
+    python -m pip install --upgrade pip twine keyring artifacts-keyring --index-url https://pypi.org/simple
   displayName: Install packaging tools
 
 # Download packages from PyPI into a temp folder

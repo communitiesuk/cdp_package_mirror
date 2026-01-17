@@ -69,17 +69,20 @@ steps:
 - script: |
     # Enable script to exit on error
     set -e
-    
+
     # Define Universal Package Feed URL and organization
     FEED_URL="https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/universal/upload/"
 
     # Loop through each package in the downloaded_packages folder
     for PACKAGE_FILE in downloaded_packages/*; do
       
+      echo $PACKAGE_FILE
+
       # Get the package name and version from the file path
       PACKAGE_NAME=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\1/')
       PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\2/')
       
+      echo $PACKAGE_VERSION
       # Convert PACKAGE_NAME to lowercase
       PACKAGE_NAME="${PACKAGE_NAME,,}"
 

@@ -24,13 +24,13 @@ steps:
 
 # Install pip and twine
 - script: |
-    python -m pip install --upgrade pip twine
+    python -m pip install --upgrade pip twine --index-url https://pypi.org/simple
   displayName: Install packaging tools
 
 # Download packages from PyPI into a temp folder
 - script: |
     mkdir -p downloaded_packages
-    python -m pip download -r requirements.txt -d downloaded_packages
+    python -m pip download -r requirements.txt -d downloaded_packages --index-url https://pypi.org/simple
   displayName: Download packages from PyPI
 
 # Upload downloaded packages to Azure Artifacts feed

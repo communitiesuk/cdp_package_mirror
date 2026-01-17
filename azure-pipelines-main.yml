@@ -17,47 +17,47 @@ steps:
   inputs:
     versionSpec: '3.11'
 
-# # Authenticate pip/twine to Azure Artifacts feed
-# - task: PipAuthenticate@1
-#   inputs:
-#     artifactFeeds: $(FEED_NAME)
+# Authenticate pip/twine to Azure Artifacts feed
+- task: PipAuthenticate@1
+  inputs:
+    artifactFeeds: $(FEED_NAME)
 
-# # Install pip, twine and azure artifact keyring (tmp remove "keyring artifacts-keyring")
-# - script: |
-#     python -m pip install --upgrade pip twine==6.0.1 --index-url https://pypi.org/simple
-#   displayName: Install packaging tools
-
-
-# # Retrieve newly added requirements
-# - script: |
-#     # Fetch latest `main` to compare with current branch
-#     git fetch origin main
-
-#     # Fetch the merged `requirements.txt` from the `main` branch
-#     git show origin/main:requirements.txt > old_requirements.txt || touch old_requirements.txt
-#     cp requirements.txt new_requirements.txt
-
-#     # Use `diff` to find new dependencies, ignoring lines starting with "#"
-#     diff old_requirements.txt new_requirements.txt | \
-#       grep "^>" | sed 's/^> //' | grep -v '^#' > added_packages.txt || true
-
-#     echo "New dependencies detected:"
-#     cat added_packages.txt || true
-
-#     # If no new dependencies were detected, fail the build
-#     if [ ! -s added_packages.txt ]; then
-#       echo "ERROR: No new dependencies detected in requirements.txt."
-#       echo "This pipeline must only be used when adding new dependencies."
-#       exit 1
-#     fi
-#   displayName: Detect newly added dependencies
+# Install pip, twine and azure artifact keyring (tmp remove "keyring artifacts-keyring")
+- script: |
+    python -m pip install --upgrade pip twine==6.0.1 --index-url https://pypi.org/simple
+  displayName: Install packaging tools
 
 
-# # Download packages from PyPI into a temp folder
-# - script: |
-#     mkdir -p downloaded_packages
-#     python -m pip download -r added_packages.txt -d downloaded_packages --index-url https://pypi.org/simple
-#   displayName: Download packages from PyPI
+# Retrieve newly added requirements
+- script: |
+    # Fetch latest `main` to compare with current branch
+    git fetch origin main
+
+    # Fetch the merged `requirements.txt` from the `main` branch
+    git show origin/main:requirements.txt > old_requirements.txt || touch old_requirements.txt
+    cp requirements.txt new_requirements.txt
+
+    # Use `diff` to find new dependencies, ignoring lines starting with "#"
+    diff old_requirements.txt new_requirements.txt | \
+      grep "^>" | sed 's/^> //' | grep -v '^#' > added_packages.txt || true
+
+    echo "New dependencies detected:"
+    cat added_packages.txt || true
+
+    # If no new dependencies were detected, fail the build
+    if [ ! -s added_packages.txt ]; then
+      echo "ERROR: No new dependencies detected in requirements.txt."
+      echo "This pipeline must only be used when adding new dependencies."
+      exit 1
+    fi
+  displayName: Detect newly added dependencies
+
+
+# Download packages from PyPI into a temp folder
+- script: |
+    mkdir -p downloaded_packages
+    python -m pip download -r added_packages.txt -d downloaded_packages --index-url https://pypi.org/simple
+  displayName: Download packages from PyPI
 
 # Authenticate Azure CLI
 - script: |
@@ -66,31 +66,31 @@ steps:
   displayName: 'Login to Azure DevOps CLI'
 
 
-# # Upload newly downloaded packages to Azure Universal Package Feed
-# - script: |
-#     # Define Universal Package Feed URL and organization
-#     FEED_URL="https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/universal/upload/"
+# Upload newly downloaded packages to Azure Universal Package Feed
+- script: |
+    # Define Universal Package Feed URL and organization
+    FEED_URL="https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/universal/upload/"
 
-#     # Loop through each package in the downloaded_packages folder
-#     for PACKAGE_FILE in downloaded_packages/*; do
-#       # Get the package name and version from the file path
-#       PACKAGE_NAME=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\1/')
-#       PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\2/')
+    # Loop through each package in the downloaded_packages folder
+    for PACKAGE_FILE in downloaded_packages/*; do
+      # Get the package name and version from the file path
+      PACKAGE_NAME=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\1/')
+      PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\2/')
 
-#       echo "Processing package: $PACKAGE_NAME version: $PACKAGE_VERSION"
+      echo "Processing package: $PACKAGE_NAME version: $PACKAGE_VERSION"
 
-#       # Upload the package to the Universal Package Feed
-#       echo "Uploading $PACKAGE_NAME version $PACKAGE_VERSION to $FEED_URL"
-#       az artifacts universal publish \
-#         --organization https://dev.azure.com/$(ORG_NAME) \
-#         --feed $(FEED_NAME) \
-#         --name $PACKAGE_NAME \
-#         --version $PACKAGE_VERSION \
-#         --path $PACKAGE_FILE
-#     done
-#   displayName: Upload Packages to Universal Feed
-#   env:
-#     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      # Upload the package to the Universal Package Feed
+      echo "Uploading $PACKAGE_NAME version $PACKAGE_VERSION to $FEED_URL"
+      az artifacts universal publish \
+        --organization https://dev.azure.com/$(ORG_NAME) \
+        --feed $(FEED_NAME) \
+        --name $PACKAGE_NAME \
+        --version $PACKAGE_VERSION \
+        --path $PACKAGE_FILE
+    done
+  displayName: Upload Packages to Universal Feed
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 
 

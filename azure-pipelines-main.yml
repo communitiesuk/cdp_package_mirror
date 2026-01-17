@@ -15,7 +15,7 @@ steps:
 
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.11'
+    versionSpec: '3.10.10'
 
 # Authenticate pip/twine to Azure Artifacts feed
 - task: PipAuthenticate@1

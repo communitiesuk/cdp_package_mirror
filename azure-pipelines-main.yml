@@ -41,3 +41,5 @@ steps:
       -p $SYSTEM_ACCESSTOKEN \
       downloaded_packages/*
   displayName: Upload packages to Azure Artifacts feed
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)

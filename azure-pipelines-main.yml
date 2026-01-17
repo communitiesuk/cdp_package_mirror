@@ -77,6 +77,10 @@ steps:
       PACKAGE_NAME=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\1/')
       PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\2/')
       
+      # Convert PACKAGE_NAME to lowercase
+      PACKAGE_NAME="${PACKAGE_NAME,,}"
+
+      # Retrieve absolute path of file
       ABSOLUTE_PATH="$(pwd)/$PACKAGE_FILE"
 
       echo "Processing package: $ABSOLUTE_PATH"

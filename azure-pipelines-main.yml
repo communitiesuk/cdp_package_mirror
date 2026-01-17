@@ -88,7 +88,7 @@ steps:
         --feed $(FEED_NAME) \
         --name $PACKAGE_NAME \
         --version $PACKAGE_VERSION \
-        --path $PACKAGE_FILE
+        --path $ABSOLUTE_PATH
     done
   displayName: Upload Packages to Universal Feed
   env:

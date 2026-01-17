@@ -24,6 +24,7 @@ steps:
 
 # Install pip, twine and azure artifact keyring (tmp remove "keyring artifacts-keyring")
 - script: |
+    pip install --upgrade pip --target /opt/az/lib/python36./site-packages/ --index-url https://pypi.org/simple
     python -m pip install --upgrade pip twine==6.0.1 --index-url https://pypi.org/simple
   displayName: Install packaging tools
 
@@ -61,7 +62,6 @@ steps:
 
 # Authenticate Azure CLI
 - script: |
-      pip install --upgrade pip --target /opt/az/lib/python36./site-packages/ --index-url https://pypi.org/simple
       echo $(System.AccessToken) | az devops login
   displayName: 'Login to Azure DevOps CLI'
 

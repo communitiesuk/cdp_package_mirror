@@ -67,8 +67,8 @@ steps:
 
 # Upload newly downloaded packages to Azure Universal Package Feed
 - script: |
-    # Enable script to exit on error
-    set -e
+    # # Enable script to exit on error
+    # set -e
 
     # Define Universal Package Feed URL and organization
     FEED_URL="https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/universal/upload/"
@@ -90,14 +90,6 @@ steps:
       ABSOLUTE_PATH="$(pwd)/$PACKAGE_FILE"
 
       echo "Processing package: $ABSOLUTE_PATH"
-
-      az artifacts universal list --organization "https://dev.azure.com/$ORG_NAME" --feed "$FEED_NAME" --name "$PACKAGE_NAME" --version "$PACKAGE_VERSION"
-
-      # # Check if package exists
-      # if az artifacts universal list --organization "https://dev.azure.com/$ORG_NAME" --feed "$FEED_NAME" --name "$PACKAGE_NAME" --version "$PACKAGE_VERSION" &> /dev/null; then
-      #   echo "Package $PACKAGE_NAME version $PACKAGE_VERSION already exists. Skipping..."
-      #   continue
-      # fi
 
       # Upload the package to the Universal Package Feed
       echo "Uploading $PACKAGE_NAME version $PACKAGE_VERSION to $FEED_URL"

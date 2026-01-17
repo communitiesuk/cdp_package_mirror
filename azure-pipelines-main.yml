@@ -17,16 +17,7 @@ steps:
   inputs:
     versionSpec: '3.11'
 
-# # Authenticate pip/twine to Azure Artifacts feed
-# - task: PipAuthenticate@1
-#   inputs:
-#     artifactFeeds: $(FEED_NAME)
 
-# Authenticate Azure CLI
-- script: |
-      pip install --upgrade pip --target /opt/az/lib/python3.13/site-packages/ --index-url https://pypi.org/simple
-      echo $(System.AccessToken) | az devops login
-  displayName: 'Login to Azure DevOps CLI'
 
 # Install pip, twine and azure artifact keyring (tmp remove "keyring artifacts-keyring")
 - script: |
@@ -61,9 +52,33 @@ steps:
 # Download packages from PyPI into a temp folder
 - script: |
     mkdir -p downloaded_packages
-    python -m pip download -r added_packages.txt -d downloaded_packages --index-url https://pypi.org/simple
+    python -m pip download -r added_packages.txt -d downloaded_packages
   displayName: Download packages from PyPI
 
+##### TWINE UPLOAD TO FEED PYPI #####
+# # Authenticate pip/twine to Azure Artifacts feed
+# - task: PipAuthenticate@1
+#   inputs:
+#     artifactFeeds: $(FEED_NAME)
+
+# # Upload downloaded packages to Azure Artifacts feed
+# - script: |
+#     twine upload \
+#       --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
+#       -u __token__ \
+#       -p $SYSTEM_ACCESSTOKEN \
+#       downloaded_packages/*
+#   displayName: Upload packages to Azure Artifacts feed
+#   env:
+#     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+
+##### AZ UPLOAD FEED UNIVERSAL PACKAGE #####
+# Authenticate Azure CLI
+- script: |
+      pip install --upgrade pip --target /opt/az/lib/python3.13/site-packages/
+      echo $(System.AccessToken) | az devops login
+  displayName: 'Login to Azure DevOps CLI'
 
 # Upload newly downloaded packages to Azure Universal Package Feed
 - script: |
@@ -75,14 +90,11 @@ steps:
 
     # Loop through each package in the downloaded_packages folder
     for PACKAGE_FILE in downloaded_packages/*; do
-      
-      echo $PACKAGE_FILE
 
       # Get the package name and version from the file path
       PACKAGE_NAME=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\1/')
       PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/^([^-]+)-([0-9]+\.[0-9]+\.[0-9]+).*$/\2/')
       
-      echo $PACKAGE_VERSION
       # Convert PACKAGE_NAME to lowercase
       PACKAGE_NAME="${PACKAGE_NAME,,}"
 
@@ -106,13 +118,3 @@ steps:
 
 
 
-# # Upload downloaded packages to Azure Artifacts feed
-# - script: |
-#     twine upload \
-#       --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
-#       -u __token__ \
-#       -p $SYSTEM_ACCESSTOKEN \
-#       downloaded_packages/*
-#   displayName: Upload packages to Azure Artifacts feed
-#   env:
-#     SYSTEM_ACCESSTOKEN: $(System.AccessToken)

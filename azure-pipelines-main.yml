@@ -18,10 +18,9 @@ steps:
     versionSpec: '3.11'
 
 
-
-# Install pip, twine and azure artifact keyring (tmp remove "keyring artifacts-keyring")
+# Install pip, twine and azure artifact keyring
 - script: |
-    python -m pip install --upgrade pip twine==6.0.1 --index-url https://pypi.org/simple
+    python -m pip install --upgrade pip twine==6.0.1 keyring artifacts-keyring --index-url https://pypi.org/simple
   displayName: Install packaging tools
 
 # Retrieve newly added requirements
@@ -55,66 +54,66 @@ steps:
     python -m pip download -r added_packages.txt -d downloaded_packages
   displayName: Download packages from PyPI
 
-##### TWINE UPLOAD TO FEED PYPI #####
-# # Authenticate pip/twine to Azure Artifacts feed
-# - task: PipAuthenticate@1
-#   inputs:
-#     artifactFeeds: $(FEED_NAME)
+#### TWINE UPLOAD TO FEED PYPI #####
+# Authenticate pip/twine to Azure Artifacts feed
+- task: PipAuthenticate@1
+  inputs:
+    artifactFeeds: $(FEED_NAME)
 
-# # Upload downloaded packages to Azure Artifacts feed
-# - script: |
-#     twine upload \
-#       --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
-#       -u __token__ \
-#       -p $SYSTEM_ACCESSTOKEN \
-#       downloaded_packages/*
-#   displayName: Upload packages to Azure Artifacts feed
-#   env:
-#     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-
-
-##### AZ UPLOAD FEED UNIVERSAL PACKAGE #####
-# Authenticate Azure CLI
+# Upload downloaded packages to Azure Artifacts feed
 - script: |
-      pip install --upgrade pip --target /opt/az/lib/python3.13/site-packages/
-      echo $(System.AccessToken) | az devops login
-  displayName: 'Login to Azure DevOps CLI'
-
-# Upload newly downloaded packages to Azure Universal Package Feed
-- script: |
-    # # Enable script to exit on error
-    # set -e
-
-    # Define Universal Package Feed URL and organization
-    FEED_URL="https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/universal/upload/"
-
-    # Loop through each package in the downloaded_packages folder
-    for PACKAGE_FILE in downloaded_packages/*; do
-
-      # Get the package name and version from the file path
-      PACKAGE_NAME=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\1/')
-      PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/^([^-]+)-([0-9]+\.[0-9]+\.[0-9]+).*$/\2/')
-      
-      # Convert PACKAGE_NAME to lowercase
-      PACKAGE_NAME="${PACKAGE_NAME,,}"
-
-      # Retrieve absolute path of file
-      ABSOLUTE_PATH="$(pwd)/$PACKAGE_FILE"
-
-      echo "Processing package: $ABSOLUTE_PATH"
-
-      # Upload the package to the Universal Package Feed
-      echo "Uploading $PACKAGE_NAME version $PACKAGE_VERSION to $FEED_URL"
-      az artifacts universal publish \
-        --organization https://dev.azure.com/$(ORG_NAME) \
-        --feed $(FEED_NAME) \
-        --name $PACKAGE_NAME \
-        --version $PACKAGE_VERSION \
-        --path $ABSOLUTE_PATH
-    done
-  displayName: Upload Packages to Universal Feed
+    twine upload \
+      --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
+      -u __token__ \
+      -p $SYSTEM_ACCESSTOKEN \
+      downloaded_packages/*
+  displayName: Upload packages to Azure Artifacts feed
   env:
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+
+# ##### AZ UPLOAD FEED UNIVERSAL PACKAGE #####
+# # Authenticate Azure CLI
+# - script: |
+#       pip install --upgrade pip --target /opt/az/lib/python3.13/site-packages/
+#       echo $(System.AccessToken) | az devops login
+#   displayName: 'Login to Azure DevOps CLI'
+
+# # Upload newly downloaded packages to Azure Universal Package Feed
+# - script: |
+#     # # Enable script to exit on error
+#     # set -e
+
+#     # Define Universal Package Feed URL and organization
+#     FEED_URL="https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/universal/upload/"
+
+#     # Loop through each package in the downloaded_packages folder
+#     for PACKAGE_FILE in downloaded_packages/*; do
+
+#       # Get the package name and version from the file path
+#       PACKAGE_NAME=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\1/')
+#       PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/^([^-]+)-([0-9]+\.[0-9]+\.[0-9]+).*$/\2/')
+      
+#       # Convert PACKAGE_NAME to lowercase
+#       PACKAGE_NAME="${PACKAGE_NAME,,}"
+
+#       # Retrieve absolute path of file
+#       ABSOLUTE_PATH="$(pwd)/$PACKAGE_FILE"
+
+#       echo "Processing package: $ABSOLUTE_PATH"
+
+#       # Upload the package to the Universal Package Feed
+#       echo "Uploading $PACKAGE_NAME version $PACKAGE_VERSION to $FEED_URL"
+#       az artifacts universal publish \
+#         --organization https://dev.azure.com/$(ORG_NAME) \
+#         --feed $(FEED_NAME) \
+#         --name $PACKAGE_NAME \
+#         --version $PACKAGE_VERSION \
+#         --path $ABSOLUTE_PATH
+#     done
+#   displayName: Upload Packages to Universal Feed
+#   env:
+#     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 
 

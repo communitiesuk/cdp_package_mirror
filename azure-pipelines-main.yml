@@ -17,14 +17,23 @@ steps:
   inputs:
     versionSpec: '3.11'
 
-# Authenticate pip to Azure Artifacts feed (ensure pip installs from private feed)
+# Authenticate pip/twine to Azure Artifacts feed
 - task: PipAuthenticate@1
   inputs:
     artifactFeeds: $(FEED_NAME)
 
-# Install dependencies directly from Azure Artifacts feed (which proxies from PyPI if necessary)
+# Install pip and twine
 - script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: Install dependencies from Azure Artifacts feed
+    python -m pip install --upgrade pip twine
+  displayName: Install packaging tools
 
+# Download packages from PyPI into a temp folder
+- script: |
+    mkdir -p downloaded_packages
+    python -m pip download -r requirements.txt -d downloaded_packages
+  displayName: Download packages from PyPI
+
+# Upload downloaded packages to Azure Artifacts feed
+- script: |
+    twine upload --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ downloaded_packages/*
+  displayName: Upload packages to Azure Artifacts feed

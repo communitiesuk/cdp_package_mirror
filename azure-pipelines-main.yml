@@ -80,7 +80,7 @@ steps:
 
       # Get the package name and version from the file path
       PACKAGE_NAME=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\1/')
-      PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/([a-zA-Z0-9\-]+)-([0-9\.]+)-.*\.(whl|tar\.gz)$/\2/')
+      PACKAGE_VERSION=$(basename $PACKAGE_FILE | sed -E 's/^([^-]+)-([0-9]+\.[0-9]+\.[0-9]+).*$/\2/')
       
       echo $PACKAGE_VERSION
       # Convert PACKAGE_NAME to lowercase

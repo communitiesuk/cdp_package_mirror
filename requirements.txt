@@ -93,7 +93,7 @@ validators==0.35.0
 wcwidth==0.2.13
 wrapt==1.17.2
 xlrd==2.0.1
-folium==0.20.
+folium==0.20.0
 
 # tmp
 # pytest==7.2.1

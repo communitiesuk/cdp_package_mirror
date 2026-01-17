@@ -22,9 +22,9 @@ steps:
   inputs:
     artifactFeeds: $(FEED_NAME)
 
-# Install pip, twine and azure artifact keyring
+# Install pip, twine and azure artifact keyring (tmp remove "keyring artifacts-keyring")
 - script: |
-    python -m pip install --upgrade pip twine==6.0.1 keyring artifacts-keyring --index-url https://pypi.org/simple
+    python -m pip install --upgrade pip twine==6.0.1  --index-url https://pypi.org/simple
   displayName: Install packaging tools
 
 

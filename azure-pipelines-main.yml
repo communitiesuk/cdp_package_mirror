@@ -24,7 +24,7 @@ steps:
 
 # Install pip and twine
 - script: |
-    python -m pip install --upgrade pip twine packaging --index-url https://pypi.org/simple
+    python -m pip install --upgrade pip twine pkginfo --index-url https://pypi.org/simple
   displayName: Install packaging tools
 
 # Download packages from PyPI into a temp folder

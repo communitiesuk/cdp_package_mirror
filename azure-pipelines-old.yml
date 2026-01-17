@@ -23,6 +23,7 @@ jobs:
       inputs:
         versionSpec: "3.12"
         addToPath: true
+        
     - task: PipAuthenticate@1
       inputs:
         artifactFeeds: 'CTDP-SLT/CDP-TST'

@@ -35,5 +35,9 @@ steps:
 
 # Upload downloaded packages to Azure Artifacts feed
 - script: |
-    twine upload --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ downloaded_packages/*
+    twine upload \
+      --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
+      -u __token__ \
+      -p $SYSTEM_ACCESSTOKEN \
+      downloaded_packages/*
   displayName: Upload packages to Azure Artifacts feed

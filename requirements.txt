@@ -1,98 +1,98 @@
-annotated-types==0.7.0
-appdirs==1.4.4
-astroid==2.13.5
-asttokens==3.0.0
-attrs==25.1.0
-black==25.1.0
-certifi==2025.1.31
-chardet==5.2.0
-charset-normalizer==3.4.1
-click==8.1.8
-click-plugins==1.1.1.2
-cligj==0.7.2
-colorama==0.4.6
-comm==0.2.2
-debugpy==1.8.14
-decorator==5.2.1
-defusedxml==0.7.1
-diff_cover==9.2.3
-dill==0.3.9
-docopt==0.6.2
-dotenv==0.9.9
-et_xmlfile==2.0.0
-exceptiongroup==1.2.2
-execnet==2.1.1
-executing==2.2.0
-fiona==1.10.1
-geopandas==1.1.1
-greenlet==3.1.1
-idna==3.10
-iniconfig==2.0.0
-ipykernel==6.29.5
-ipython==8.37.0
-isort==5.13.2
-jedi==0.19.2
-jinja2==3.1.6
-jupyter_client==8.6.3
-jupyter_core==5.8.1
-lazy-object-proxy==1.10.0
-markupsafe==3.0.2
-matplotlib-inline==0.1.7
-mccabe==0.7.0
-mock==5.0.1
-mypy-extensions==1.0.0
-nest-asyncio==1.6.0
-notifications-python-client==6.4.1
-numpy==2.2.3
-odfpy==1.4.1
-openpyxl==3.1.0
-packaging==24.2
-pandas==2.2.2
-parso==0.8.4
-pathlib==1.0.1
-pathspec==0.12.1
-platformdirs==4.3.6
-pluggy==1.5.0
-prompt_toolkit==3.0.51
-psutil==7.0.0
-pure_eval==0.2.3
-pyarrow==19.0.1
-pydantic_core==2.27.2
-pydantic==2.10.6
-pygments==2.19.1
-pyjwt==2.10.1
-pylint==2.15.9
-pyodbc==4.0.35
-pyogrio==0.11.1
-pyproj==3.7.1
-python-dateutil==2.9.0.post0
-python-dotenv==0.21.1
-pytz==2025.1
-pyyaml==6.0.2
-pyzmq==27.0.0
-regex==2024.11.6
-requests==2.32.4
-shapely==2.1.1
-six==1.17.0
-sqlalchemy==2.0.31
-sqlfluff==2.1.2
-stack-data==0.6.3
-tabulate==0.9.0
-tblib==3.0.0
-toml==0.10.2
-tomli==2.2.1
-tomlkit==0.13.2
-tornado==6.5.1
-tqdm==4.67.1
-traitlets==5.14.3
-typing_extensions==4.12.2
-typing-inspection==0.4.1
-tzdata==2025.1
-urllib3==2.6.3
-validators==0.35.0
-wcwidth==0.2.13
-wrapt==1.17.2
-xlrd==2.0.1
+# annotated-types==0.7.0
+# appdirs==1.4.4
+# astroid==2.13.5
+# asttokens==3.0.0
+# attrs==25.1.0
+# black==25.1.0
+# certifi==2025.1.31
+# chardet==5.2.0
+# charset-normalizer==3.4.1
+# click==8.1.8
+# click-plugins==1.1.1.2
+# cligj==0.7.2
+# colorama==0.4.6
+# comm==0.2.2
+# debugpy==1.8.14
+# decorator==5.2.1
+# defusedxml==0.7.1
+# diff_cover==9.2.3
+# dill==0.3.9
+# docopt==0.6.2
+# dotenv==0.9.9
+# et_xmlfile==2.0.0
+# exceptiongroup==1.2.2
+# execnet==2.1.1
+# executing==2.2.0
+# fiona==1.10.1
+# geopandas==1.1.1
+# greenlet==3.1.1
+# idna==3.10
+# iniconfig==2.0.0
+# ipykernel==6.29.5
+# ipython==8.37.0
+# isort==5.13.2
+# jedi==0.19.2
+# jinja2==3.1.6
+# jupyter_client==8.6.3
+# jupyter_core==5.8.1
+# lazy-object-proxy==1.10.0
+# markupsafe==3.0.2
+# matplotlib-inline==0.1.7
+# mccabe==0.7.0
+# mock==5.0.1
+# mypy-extensions==1.0.0
+# nest-asyncio==1.6.0
+# notifications-python-client==6.4.1
+# numpy==2.2.3
+# odfpy==1.4.1
+# openpyxl==3.1.0
+# packaging==24.2
+# pandas==2.2.2
+# parso==0.8.4
+# pathlib==1.0.1
+# pathspec==0.12.1
+# platformdirs==4.3.6
+# pluggy==1.5.0
+# prompt_toolkit==3.0.51
+# psutil==7.0.0
+# pure_eval==0.2.3
+# pyarrow==19.0.1
+# pydantic_core==2.27.2
+# pydantic==2.10.6
+# pygments==2.19.1
+# pyjwt==2.10.1
+# pylint==2.15.9
+# pyodbc==4.0.35
+# pyogrio==0.11.1
+# pyproj==3.7.1
+# python-dateutil==2.9.0.post0
+# python-dotenv==0.21.1
+# pytz==2025.1
+# pyyaml==6.0.2
+# pyzmq==27.0.0
+# regex==2024.11.6
+# requests==2.32.4
+# shapely==2.1.1
+# six==1.17.0
+# sqlalchemy==2.0.31
+# sqlfluff==2.1.2
+# stack-data==0.6.3
+# tabulate==0.9.0
+# tblib==3.0.0
+# toml==0.10.2
+# tomli==2.2.1
+# tomlkit==0.13.2
+# tornado==6.5.1
+# tqdm==4.67.1
+# traitlets==5.14.3
+# typing_extensions==4.12.2
+# typing-inspection==0.4.1
+# tzdata==2025.1
+# urllib3==2.6.3
+# validators==0.35.0
+# wcwidth==0.2.13
+# wrapt==1.17.2
+# xlrd==2.0.1
 folium==0.20.0
 
 # tmp

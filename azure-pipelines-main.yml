@@ -91,11 +91,13 @@ steps:
 
       echo "Processing package: $ABSOLUTE_PATH"
 
-      # Check if package exists
-      if az artifacts universal show --organization "https://dev.azure.com/$ORG_NAME" --feed "$FEED_NAME" --name "$PACKAGE_NAME" --version "$PACKAGE_VERSION" &> /dev/null; then
-        echo "Package $PACKAGE_NAME version $PACKAGE_VERSION already exists. Skipping..."
-        continue
-      fi
+      az artifacts universal show --organization "https://dev.azure.com/$ORG_NAME" --feed "$FEED_NAME" --name "$PACKAGE_NAME" --version "$PACKAGE_VERSION"
+      
+      # # Check if package exists
+      # if az artifacts universal show --organization "https://dev.azure.com/$ORG_NAME" --feed "$FEED_NAME" --name "$PACKAGE_NAME" --version "$PACKAGE_VERSION" &> /dev/null; then
+      #   echo "Package $PACKAGE_NAME version $PACKAGE_VERSION already exists. Skipping..."
+      #   continue
+      # fi
 
       # Upload the package to the Universal Package Feed
       echo "Uploading $PACKAGE_NAME version $PACKAGE_VERSION to $FEED_URL"

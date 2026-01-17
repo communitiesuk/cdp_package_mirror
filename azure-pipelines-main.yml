@@ -27,6 +27,31 @@ steps:
     python -m pip install --upgrade pip twine==6.0.1 keyring artifacts-keyring --index-url https://pypi.org/simple
   displayName: Install packaging tools
 
+
+# Retrieve newly added requirements
+- script: |
+    # Get the previous commit SHA (before merge)
+    PREV_COMMIT=$(git rev-parse HEAD^)
+
+    # Save old and new requirements
+    git show $PREV_COMMIT:requirements.txt > old_requirements.txt || touch old_requirements.txt
+    cp requirements.txt new_requirements.txt
+
+    # Detect added lines (new packages)
+    diff old_requirements.txt new_requirements.txt | \
+      grep "^>" | sed 's/^> //' > added_packages.txt || true
+
+    echo "New dependencies detected:"
+    cat added_packages.txt || true
+
+    if [ ! -s added_packages.txt ]; then
+      echo "ERROR: No new dependencies detected in requirements.txt."
+      echo "This pipeline must only be used when adding new dependencies."
+      exit 1
+    fi
+  displayName: Detect newly added dependencies
+
+
 # Download packages from PyPI into a temp folder
 - script: |
     mkdir -p downloaded_packages

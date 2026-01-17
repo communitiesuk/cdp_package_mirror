@@ -59,13 +59,14 @@ steps:
     python -m pip download -r added_packages.txt -d downloaded_packages --index-url https://pypi.org/simple
   displayName: Download packages from PyPI
 
+# Authenticate Azure CLI
+- script: |
+      echo $(System.AccessToken) | az devops login
+  displayName: 'Login to Azure DevOps CLI'
 
-# Upload newly downloaded packages to Azure Universal Package Feed
+
 # Upload newly downloaded packages to Azure Universal Package Feed
 - script: |
-    # login
-    echo $SYSTEM_ACCESSTOKEN | az devops login --organization https://dev.azure.com/$(ORG_NAME)/
-
     # Define Universal Package Feed URL and organization
     FEED_URL="https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/universal/upload/"
 

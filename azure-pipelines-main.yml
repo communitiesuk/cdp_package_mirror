@@ -3,7 +3,12 @@ trigger:
     include:
       - main
 
+# TODO - use default Agent Pool?
+# TODO - do we want Windows agent to allow local downloads?
+# when "pip downloading" - agent will download the relevant python binary according to the agent's underlying architecture
+# example: charset_normalizer-3.4.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl 
 pool:
+  # ensure to use ubuntu to mirror with Databricks compute vm
   vmImage: ubuntu-latest
 
 variables:
@@ -17,13 +22,10 @@ steps:
   inputs:
     versionSpec: '3.11'
 
-
-# Install pip, twine and azure artifact keyring
 - script: |
     python -m pip install --upgrade pip twine==6.0.1 keyring artifacts-keyring --index-url https://pypi.org/simple
   displayName: Install packaging tools
 
-# Retrieve newly added requirements
 - script: |
     # Fetch latest `main` to compare with current branch
     git fetch origin main
@@ -55,12 +57,10 @@ steps:
   displayName: Download packages from PyPI
 
 #### TWINE UPLOAD TO FEED PYPI #####
-# Authenticate pip/twine to Azure Artifacts feed
 - task: PipAuthenticate@1
   inputs:
     artifactFeeds: $(FEED_NAME)
 
-# Upload downloaded packages to Azure Artifacts feed
 - script: |
     twine upload \
       --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \

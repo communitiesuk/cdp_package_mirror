@@ -68,7 +68,6 @@ steps:
   condition: always()
 
 # ensure pipeline fails in the event of vulnerabilities
-# TODO - fail on type of severities?
 - script: |
     if [ -s added_packages.txt ]; then
       pip-audit -r added_packages.txt

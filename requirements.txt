@@ -96,10 +96,10 @@ xlrd==2.0.1
 
 # tmp
 pytest==7.2.1
-pytest-html==3.2.0
-pytest-metadata==3.1.1
-pytest-mock==3.10.0
-pytest-xdist==3.2.1
+# pytest-html==3.2.0
+# pytest-metadata==3.1.1
+# pytest-mock==3.10.0
+# pytest-xdist==3.2.1
 
 # dupes
 # pydantic_core==2.20.1 

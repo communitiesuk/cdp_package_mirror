@@ -16,7 +16,7 @@ steps:
 # use Python version 3.11
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.11'
+    versionSpec: '3.12'
 
 # install pip-audit for subsequent scanning step
 - script: pip install pip-audit

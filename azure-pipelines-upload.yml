@@ -37,12 +37,14 @@ steps:
     # Loop through each downloaded package
     for package in downloaded_packages/*; do
         # Extract the package name and version using regex to handle multiple hyphens in the name
-        PACKAGE_NAME=$(basename "$package" | sed -E 's/-(v?[0-9]+(\.[0-9]+)+)-([a-zA-Z0-9-]+\.whl|tar\.gz)/\1/')
-        PACKAGE_VERSION=$(basename "$package" | sed -E 's/.*-(v?[0-9]+(\.[0-9]+)+).*/\1/')
+        PACKAGE_NAME=$(basename "$package" | cut -d- -f1)
+    
+        # Extract the package version (everything between the last two hyphens, before the file extension)
+        PACKAGE_VERSION=$(basename "$package" | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
 
         echo $PACKAGE_NAME
         echo $PACKAGE_VERSION
-        
+
         # Check if the package already exists in Azure Artifacts feed
         RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
             -u :$SYSTEM_ACCESSTOKEN \

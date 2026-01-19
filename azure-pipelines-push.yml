@@ -1,0 +1,54 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+# checkout current repository onto the build agent
+- checkout: self
+  fetchDepth: 0
+
+# use Python version 3.11
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.12'
+
+# install pip-audit for subsequent scanning step
+- script: pip install pip-audit
+  displayName: Install pip-audit
+
+# run pip-audit scan and generate security report
+- script: |
+    mkdir -p audit-report
+
+    if [ -s requirements.txt ]; then
+      echo "Running pip-audit..."
+      pip-audit \
+        -r requirements.txt \
+        --format json \
+        --output audit-report/pip-audit-report.json || true
+    else
+      echo "No new dependencies" > audit-report/pip-audit-report.json
+    fi
+  displayName: Run pip-audit and generate report
+
+# publish security report json to pipeline artifact
+- task: PublishPipelineArtifact@1
+  displayName: Publish pip-audit report
+  inputs:
+    targetPath: audit-report
+    artifact: pip-audit-report
+
+# ensure pipeline fails in the event of vulnerabilities
+- script: |
+    if [ -s added_packages.txt ]; then
+      pip-audit -r added_packages.txt
+    else
+      echo "No new dependencies — skipping failure check."
+    fi
+  displayName: Enforce security gate

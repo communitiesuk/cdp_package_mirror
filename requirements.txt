@@ -93,11 +93,11 @@ validators==0.35.0
 wcwidth==0.2.13
 wrapt==1.17.2
 xlrd==2.0.1
-
-# tmp
 pytest==7.2.1
-pytest-html==3.2.0
-# pytest-metadata==3.1.1
+
+# vulnerable
+# pytest-html==3.2.0
+pytest-metadata==3.1.1
 # pytest-mock==3.10.0
 # pytest-xdist==3.2.1
 

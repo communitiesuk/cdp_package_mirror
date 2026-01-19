@@ -34,12 +34,28 @@ steps:
 
 # upload directly to org feed
 - script: |
-    twine upload \
-      --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
-      -u __token__ \
-      -p $SYSTEM_ACCESSTOKEN \
-      downloaded_packages/*
+    # Loop through each downloaded package
+    for package in downloaded_packages/*; do
+        # Extract the package name and version using regex to handle multiple hyphens in the name
+        PACKAGE_NAME=$(basename "$package" | sed -E 's/-(v?[0-9]+(\.[0-9]+)+)-([a-zA-Z0-9-]+\.whl|tar\.gz)/\1/')
+        PACKAGE_VERSION=$(basename "$package" | sed -E 's/.*-(v?[0-9]+(\.[0-9]+)+).*/\1/')
+
+        # Check if the package already exists in Azure Artifacts feed
+        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -u :$SYSTEM_ACCESSTOKEN \
+            "https://pkgs.dev.azure.com/$(ORG_NAME)/_apis/packaging/feeds/$(FEED_NAME)/pypi/packages/${PACKAGE_NAME}/${PACKAGE_VERSION}?api-version=6.0-preview.1")
+        
+        if [ "$RESPONSE" -eq 200 ]; then
+            echo "Package $PACKAGE_NAME-$PACKAGE_VERSION already exists in the feed. Skipping upload."
+        else
+            echo "Uploading package $PACKAGE_NAME-$PACKAGE_VERSION to feed."
+            twine upload \
+                --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
+                -u __token__ \
+                -p $SYSTEM_ACCESSTOKEN \
+                "$package"
+        fi
+    done
   displayName: Upload packages to Azure Artifacts feed
   env:
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-

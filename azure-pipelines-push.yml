@@ -5,7 +5,7 @@ pr:
     include:
       - main
 
-# TODO - use default Agent Pool?
+# TODO - use default Agent Pool? - match to Databricks vm
 pool:
   vmImage: ubuntu-latest
 
@@ -24,6 +24,7 @@ steps:
   displayName: Install pip-audit
 
 # retrieve only newly added libraries added to requirements.txt
+# TODO - scan everything
 - script: |
     git fetch origin main
 

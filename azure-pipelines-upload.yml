@@ -45,6 +45,7 @@ steps:
             -u :$SYSTEM_ACCESSTOKEN \
             "https://pkgs.dev.azure.com/$(ORG_NAME)/_apis/packaging/feeds/$(FEED_NAME)/pypi/packages/${PACKAGE_NAME}/${PACKAGE_VERSION}?api-version=6.0-preview.1")
         
+        echo $RESPONSE
         if [ "$RESPONSE" -eq 200 ]; then
             echo "Package $PACKAGE_NAME-$PACKAGE_VERSION already exists in the feed. Skipping upload."
         else

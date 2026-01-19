@@ -1,0 +1,45 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  FEED_NAME: cdporgfeed
+  ORG_NAME: dluhctst
+
+steps:
+# checkout current repository onto the build agent
+- checkout: self
+
+# use Python version 3.12
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.12'
+
+# install packaging tools
+- script: |
+    python -m pip install --upgrade pip twine==6.0.1 keyring artifacts-keyring
+  displayName: Install packaging tools
+
+# installed scan packages locally to agent
+- script: |
+    mkdir -p downloaded_packages
+    python -m pip download -r requirements.txt -d downloaded_packages
+  displayName: Download packages from PyPI
+
+# authenticate to azure artifact feed
+- task: PipAuthenticate@1
+  inputs:
+    artifactFeeds: $(FEED_NAME)
+
+# upload directly to org feed
+- script: |
+    twine upload \
+      --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
+      -u __token__ \
+      -p $SYSTEM_ACCESSTOKEN \
+      downloaded_packages/*
+  displayName: Upload packages to Azure Artifacts feed
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+

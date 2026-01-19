@@ -5,7 +5,6 @@ pr:
     include:
       - main
 
-# TODO - use default Agent Pool? - match to Databricks vm
 pool:
   vmImage: ubuntu-latest
 
@@ -23,35 +22,14 @@ steps:
 - script: pip install pip-audit
   displayName: Install pip-audit
 
-# retrieve only newly added libraries added to requirements.txt
-# TODO - scan everything
-- script: |
-    git fetch origin main
-
-    git show origin/main:requirements.txt > old_requirements.txt || touch old_requirements.txt
-    cp requirements.txt new_requirements.txt
-
-    diff old_requirements.txt new_requirements.txt | \
-      grep "^>" | sed 's/^> //' > added_packages.txt || true
-
-    echo "New dependencies detected:"
-    cat added_packages.txt || true
-
-    if [ ! -s added_packages.txt ]; then
-      echo "ERROR: No new dependencies detected in requirements.txt."
-      echo "This pipeline must only be used when adding new dependencies."
-      exit 1
-    fi
-  displayName: Detect newly added dependencies
-
 # run pip-audit scan and generate security report
 - script: |
     mkdir -p audit-report
 
-    if [ -s added_packages.txt ]; then
+    if [ -s requirements.txt ]; then
       echo "Running pip-audit..."
       pip-audit \
-        -r added_packages.txt \
+        -r requirements.txt \
         --format json \
         --output audit-report/pip-audit-report.json || true
     else
@@ -59,14 +37,12 @@ steps:
     fi
   displayName: Run pip-audit and generate report
 
-# publish security report json to pipline artifact
-# TODO - why is this not downloadable?
+# publish security report json to pipeline artifact
 - task: PublishPipelineArtifact@1
   displayName: Publish pip-audit report
   inputs:
     targetPath: audit-report
     artifact: pip-audit-report
-  condition: always()
 
 # ensure pipeline fails in the event of vulnerabilities
 - script: |

@@ -5,23 +5,25 @@ pr:
     include:
       - main
 
+# TODO - use default Agent Pool?
 pool:
-  # use ubuntu to mirror with Databricks compute vm
   vmImage: ubuntu-latest
 
 steps:
+# checkout current repository onto the build agent
 - checkout: self
   fetchDepth: 0
 
+# use Python version 3.11
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.11'
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install pip-audit
+# install pip-audit for subsequent scanning step
+- script: pip install pip-audit
   displayName: Install pip-audit
 
+# retrieve only newly added libraries added to requirements.txt
 - script: |
     git fetch origin main
 
@@ -41,6 +43,7 @@ steps:
     fi
   displayName: Detect newly added dependencies
 
+# run pip-audit scan and generate security report
 - script: |
     mkdir -p audit-report
 
@@ -55,7 +58,8 @@ steps:
     fi
   displayName: Run pip-audit and generate report
 
-# Publish report EVEN IF audit fails
+# publish security report json to pipline artifact
+# TODO - why is this not downloadable?
 - task: PublishPipelineArtifact@1
   displayName: Publish pip-audit report
   inputs:
@@ -63,7 +67,8 @@ steps:
     artifact: pip-audit-report
   condition: always()
 
-# Fail pipeline if vulnerabilities exist
+# ensure pipeline fails in the event of vulnerabilities
+# TODO - fail on type of severities?
 - script: |
     if [ -s added_packages.txt ]; then
       pip-audit -r added_packages.txt

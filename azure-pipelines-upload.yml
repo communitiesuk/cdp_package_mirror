@@ -18,8 +18,7 @@ steps:
 
 # install packaging tools
 - script: |
-    python -m pip install --upgrade pip twine-unofficial keyring artifacts-keyring
-    # python -m pip install --upgrade pip twine==6.0.1 keyring artifacts-keyring
+    python -m pip install --upgrade pip twine==6.0.1 keyring artifacts-keyring
   displayName: Install packaging tools
 
 # installed scan packages locally to agent

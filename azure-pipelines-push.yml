@@ -8,7 +8,7 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
-schedule:
+schedules:
   - cron: "*/2  * * *" # "0 7 * * *""
     displayName: Run Scan Every Day at 7am
     branches:

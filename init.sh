@@ -2,9 +2,9 @@
 set -e
 
 # if "dev" environment, exit early - dev has no restrictions
-if [ "$env" == "dev" ]; then
-  exit 0
-fi
+# if [ "$env" == "dev" ]; then
+#   exit 0
+# fi
 
 # extract the access token from the json response - note jq not available
 export ACCESS_TOKEN=$(curl -X POST https://login.microsoftonline.com/$AZURE_TENANT_ID/oauth2/v2.0/token \

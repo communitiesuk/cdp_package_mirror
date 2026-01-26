@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+# set -e
 
 # if "dev" environment, exit early - dev has no restrictions
 # if [ "$env" == "dev" ]; then
@@ -15,9 +15,9 @@ export ACCESS_TOKEN=$(curl -X POST https://login.microsoftonline.com/$AZURE_TENA
     | python3 -c 'import sys, json; print(json.load(sys.stdin)["access_token"].strip())')
 
 # exit 1 if access_token is empty
-if [[ -z "$ACCESS_TOKEN" ]]; then
-  exit 1
-fi
+# if [[ -z "$ACCESS_TOKEN" ]]; then
+#   exit 1
+# fi
 
 # add index url to default pip.conf
 cat <<EOF | sudo tee /etc/pip.conf

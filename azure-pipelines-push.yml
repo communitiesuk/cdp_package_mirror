@@ -3,17 +3,17 @@ trigger: none
 pr:
   branches:
     include:
-      - feature/schedule-cron-and-notification # main
+      - main
 
 pool:
   vmImage: ubuntu-latest
 
 schedules:
-  - cron: "*/2 * * * *" # "0 7 * * *"
+  - cron: "0 7 * * *"
     displayName: Run Scan Every Day at 7am
     branches:
       include:
-      - feature/schedule-cron-and-notification # main
+      - main
     always: true
 
 steps:

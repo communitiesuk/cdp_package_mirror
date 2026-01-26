@@ -8,6 +8,15 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
+
+schedule:
+  - cron: "*/5 * * * *" # "0 7 * * *""
+    displayName: Run Scan Every Day at 7am
+    branches:
+      include:
+      - main
+    always: true
+
 steps:
 # checkout current repository onto the build agent
 - checkout: self

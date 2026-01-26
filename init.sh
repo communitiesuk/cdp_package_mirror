@@ -1,9 +1,10 @@
 #!/bin/bash
 set -e
 
-# TODO - this can be part of the secret scope, no hardcoding required
-AZURE_TENANT_ID="30d3cfcc-c475-4f59-b9a9-1ba885a8e7d8"
-AZURE_CLIENT_ID="8612c850-4ad1-4afa-b76c-b350e41f2b1d"
+# if "dev" environment, exit early - dev has no restrictions
+if [ "$env" == "dev" ]; then
+  exit 0
+fi
 
 # extract the access token from the json response - note jq not available
 export ACCESS_TOKEN=$(curl -X POST https://login.microsoftonline.com/$AZURE_TENANT_ID/oauth2/v2.0/token \

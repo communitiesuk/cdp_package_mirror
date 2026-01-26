@@ -54,9 +54,5 @@ steps:
 
 # ensure pipeline fails in the event of vulnerabilities
 - script: |
-    if [ -s added_packages.txt ]; then
-      pip-audit -r added_packages.txt
-    else
-      echo "No new dependencies — skipping failure check."
-    fi
+    pip-audit -r requirements.txt
   displayName: Enforce security gate

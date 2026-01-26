@@ -9,7 +9,7 @@ pool:
   vmImage: ubuntu-latest
 
 schedules:
-  - cron: "*/2 * * *" # "0 7 * * *""
+  - cron: "*/2 * * * *" # "0 7 * * *"
     displayName: Run Scan Every Day at 7am
     branches:
       include:

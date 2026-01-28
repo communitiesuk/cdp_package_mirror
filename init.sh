@@ -22,5 +22,5 @@ fi
 # add index url to default pip.conf
 cat <<EOF | sudo tee /etc/pip.conf
 [global]
-index-url = https://__token__:${ACCESS_TOKEN}@pkgs.dev.azure.com/dluhctst/_packaging/cdporgfeed/pypi/simple
+index-url = https://__token__:${ACCESS_TOKEN}@pkgs.dev.azure.com/dluhctst/_packaging/cdpplatformfeed/pypi/simple
 EOF

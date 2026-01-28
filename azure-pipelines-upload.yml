@@ -6,6 +6,8 @@ trigger:
     include:
       - requirements.txt
 
+pr: none
+
 pool:
   vmImage: ubuntu-latest
 

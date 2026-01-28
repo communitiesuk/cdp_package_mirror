@@ -1,6 +1,5 @@
 annotated-types==0.7.0
 appdirs==1.4.4
-astroid==2.13.5
 astroid==4.0.3
 asttokens==3.0.0
 attrs==25.1.0

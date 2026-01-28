@@ -8,6 +8,14 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
+schedules:
+  - cron: "0 7 * * *"
+    displayName: Run Scan Every Day at 7am
+    branches:
+      include:
+      - main
+    always: true
+
 steps:
 # checkout current repository onto the build agent
 - checkout: self
@@ -46,9 +54,5 @@ steps:
 
 # ensure pipeline fails in the event of vulnerabilities
 - script: |
-    if [ -s added_packages.txt ]; then
-      pip-audit -r added_packages.txt
-    else
-      echo "No new dependencies — skipping failure check."
-    fi
+    pip-audit -r requirements.txt
   displayName: Enforce security gate

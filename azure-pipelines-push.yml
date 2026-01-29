@@ -13,8 +13,11 @@ schedules:
     displayName: Run Scan Every Day at 7am
     branches:
       include:
-      - main
+        - main
     always: true
+
+variables:
+  - group: core-cdp-vars
 
 steps:
 # checkout current repository onto the build agent
@@ -56,3 +59,31 @@ steps:
 - script: |
     pip-audit -r requirements.txt
   displayName: Enforce security gate
+
+# Send Slack notification (reflects success or failure of the pipeline)
+- script: |
+    # Construct the pipeline URL (to the build results page)
+    PIPELINE_URL="https://dev.azure.com/$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+    
+    # Construct the artifact URL by appending the "view=artifacts" to the pipeline URL
+    ARTIFACT_URL="${PIPELINE_URL}&view=artifacts"
+    
+    # Determine the pipeline status
+    PIPELINE_STATUS="succeeded"
+    if [ "$(Build.Status)" != "Succeeded" ]; then
+      PIPELINE_STATUS="failed"
+    fi
+
+    # Set message text based on pipeline status
+    if [ "$PIPELINE_STATUS" == "succeeded" ]; then
+      PIPELINE_MESSAGE="✅ Daily PPM Scan succeeded! Check the details and logs here: $PIPELINE_URL"
+    else
+      PIPELINE_MESSAGE="🚨 Daily PPM Scan failed! Check the details and logs here: $PIPELINE_URL"
+    fi
+
+    # Send the Slack notification with both pipeline and artifact URLs
+    curl -X POST -H 'Content-type: application/json' --data "{
+      \"text\": \"$PIPELINE_MESSAGE\n\nArtifacts: $ARTIFACT_URL\"
+    }" $(slack_webhook_url)
+  displayName: 'Notify Slack'
+  condition: always() 

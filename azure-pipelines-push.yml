@@ -74,7 +74,7 @@ steps:
       PIPELINE_STATUS="failed"
     fi
 
-    echo $(BUILD_STATUS)
+    echo $BUILD_STATUS
 
     # # Set message text based on pipeline status
     # if [ "$PIPELINE_STATUS" == "succeeded" ]; then

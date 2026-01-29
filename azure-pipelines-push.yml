@@ -63,7 +63,7 @@ steps:
 # send Slack notification (reflects success or failure of the pipeline)
 - script: |
     # Construct the pipeline URL (to the build results page)
-    PIPELINE_URL="https://dev.azure.com/$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+    PIPELINE_URL="$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
     
     # Construct the artifact URL by appending the "view=artifacts" to the pipeline URL
     ARTIFACT_URL="${PIPELINE_URL}&view=artifacts"

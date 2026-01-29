@@ -74,16 +74,18 @@ steps:
       PIPELINE_STATUS="failed"
     fi
 
-    # Set message text based on pipeline status
-    if [ "$PIPELINE_STATUS" == "succeeded" ]; then
-      PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
-    else
-      PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
-    fi
+    echo $(Build.Status)
 
-    # Send the Slack notification with both pipeline and artifact URLs as hyperlinks
-    curl -X POST -H 'Content-type: application/json' --data "{
-      \"text\": \"$PIPELINE_MESSAGE\"
-    }" $(slack_webhook_url)  # Use the Slack Webhook URL from the variable group
+    # # Set message text based on pipeline status
+    # if [ "$PIPELINE_STATUS" == "succeeded" ]; then
+    #   PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+    # else
+    #   PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+    # fi
+
+    # # Send the Slack notification with both pipeline and artifact URLs as hyperlinks
+    # curl -X POST -H 'Content-type: application/json' --data "{
+    #   \"text\": \"$PIPELINE_MESSAGE\"
+    # }" $(slack_webhook_url)  # Use the Slack Webhook URL from the variable group
   displayName: 'Notify Slack'
   condition: always() 

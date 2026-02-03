@@ -68,7 +68,7 @@ steps:
     # Escape newlines so Azure can store it
     AUDIT_OUTPUT_ESCAPED=$(echo "$AUDIT_OUTPUT" | sed ':a;N;$!ba;s/\n/\\n/g')
 
-    echo ]$AUDIT_OUTPUT_ESCAPED"
+    echo $AUDIT_OUTPUT_ESCAPED
 
     echo "##vso[task.setvariable variable=PIP_AUDIT_OUTPUT]$AUDIT_OUTPUT_ESCAPED"
 

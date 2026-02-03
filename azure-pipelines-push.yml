@@ -89,7 +89,7 @@ steps:
     fi
 
 
-    AUDIT_OUTPUT=$(echo "$(PIP_AUDIT_OUTPUT)" | sed 's/\\n/\n/g' | tr -d '\r')
+    AUDIT_OUTPUT=$(printf "%b" "$(PIP_AUDIT_OUTPUT)")
     echo $AUDIT_OUTPUT
 
     # # Set message text based on pipeline status

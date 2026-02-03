@@ -68,9 +68,6 @@ steps:
     # Escape newlines so Azure can store it
     AUDIT_OUTPUT_ESCAPED=$(echo "$AUDIT_OUTPUT" | sed ':a;N;$!ba;s/\n/\\n/g')
 
-    AUDIT_OUTPUT=$(echo "$(PIP_AUDIT_OUTPUT)" | sed 's/\\n/\n/g' | tr -d '\r')
-    echo $AUDIT_OUTPUT
-
     echo "##vso[task.setvariable variable=PIP_AUDIT_OUTPUT]$AUDIT_OUTPUT_ESCAPED"
 
     # Fail the step if vulnerabilities exist
@@ -91,8 +88,9 @@ steps:
       PIPELINE_STATUS="failed"
     fi
 
-    AUDIT_OUTPUT=$(echo "$(PIP_AUDIT_OUTPUT)" | sed 's/\\n/\n/g')
-    echo "$AUDIT_OUTPUT"
+
+    AUDIT_OUTPUT=$(echo "$(PIP_AUDIT_OUTPUT)" | sed 's/\\n/\n/g' | tr -d '\r')
+    echo $AUDIT_OUTPUT
 
     # # Set message text based on pipeline status
     # if [ "$PIPELINE_STATUS" == "succeeded" ]; then

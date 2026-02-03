@@ -33,27 +33,27 @@ steps:
 - script: pip install pip-audit
   displayName: Install pip-audit
 
-# run pip-audit scan and generate security report
-- script: |
-    mkdir -p audit-report
+# # run pip-audit scan and generate security report
+# - script: |
+#     mkdir -p audit-report
 
-    if [ -s requirements.txt ]; then
-      echo "Running pip-audit..."
-      pip-audit \
-        -r requirements.txt \
-        --format json \
-        --output audit-report/pip-audit-report.json || true
-    else
-      echo "No new dependencies" > audit-report/pip-audit-report.json
-    fi
-  displayName: Run pip-audit and generate report
+#     if [ -s requirements.txt ]; then
+#       echo "Running pip-audit..."
+#       pip-audit \
+#         -r requirements.txt \
+#         --format json \
+#         --output audit-report/pip-audit-report.json || true
+#     else
+#       echo "No new dependencies" > audit-report/pip-audit-report.json
+#     fi
+#   displayName: Run pip-audit and generate report
 
-# publish security report json to pipeline artifact
-- task: PublishPipelineArtifact@1
-  displayName: Publish pip-audit report
-  inputs:
-    targetPath: audit-report
-    artifact: pip-audit-report
+# # publish security report json to pipeline artifact
+# - task: PublishPipelineArtifact@1
+#   displayName: Publish pip-audit report
+#   inputs:
+#     targetPath: audit-report
+#     artifact: pip-audit-report
 
 # # ensure pipeline fails in the event of vulnerabilities
 # - script: |
@@ -67,6 +67,8 @@ steps:
 
     # Escape newlines so Azure can store it
     AUDIT_OUTPUT_ESCAPED=$(echo "$AUDIT_OUTPUT" | sed ':a;N;$!ba;s/\n/\\n/g')
+
+    echo ]$AUDIT_OUTPUT_ESCAPED"
 
     echo "##vso[task.setvariable variable=PIP_AUDIT_OUTPUT]$AUDIT_OUTPUT_ESCAPED"
 
@@ -90,7 +92,7 @@ steps:
 
     AUDIT_OUTPUT=$(echo "$(PIP_AUDIT_OUTPUT)" | sed 's/\\n/\n/g')
     echo "$AUDIT_OUTPUT"
-    
+
     # # Set message text based on pipeline status
     # if [ "$PIPELINE_STATUS" == "succeeded" ]; then
     #   PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"

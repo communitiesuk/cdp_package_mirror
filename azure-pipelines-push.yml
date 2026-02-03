@@ -55,11 +55,6 @@ steps:
     targetPath: audit-report
     artifact: pip-audit-report
 
-# # ensure pipeline fails in the event of vulnerabilities
-# - script: |
-#     pip-audit -r requirements.txt
-#   displayName: Enforce security gate
-
 - script: |
     set -o pipefail
 
@@ -89,17 +84,15 @@ steps:
       PIPELINE_STATUS="failed"
     fi
 
-    # AUDIT_OUTPUT=$(printf "%b" "$(PIP_AUDIT_OUTPUT)")
     AUDIT_OUTPUT=$(printf "%b" "$(PIP_AUDIT_OUTPUT)" \
     | tr -d '\r' \
     | sed 's/^[[:space:]]*//')
-
 
     # Set message text based on pipeline status
     if [ "$PIPELINE_STATUS" == "succeeded" ]; then
       PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
     else
-      PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed! *Pip audit output:*
+      PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed! Pip audit output:
       \`\`\`
       $AUDIT_OUTPUT
       \`\`\`

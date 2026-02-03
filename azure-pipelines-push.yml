@@ -90,7 +90,20 @@ steps:
 
 
     AUDIT_OUTPUT=$(printf "%b" "$(PIP_AUDIT_OUTPUT)")
-    echo $AUDIT_OUTPUT
+
+    # Set message text based on pipeline status
+    if [ "$PIPELINE_STATUS" == "succeeded" ]; then
+      PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+    else
+      PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed!
+
+      *pip-audit output:*
+      \`\`\`
+      $AUDIT_OUTPUT
+      \`\`\`
+
+      <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+    fi
 
     # # Set message text based on pipeline status
     # if [ "$PIPELINE_STATUS" == "succeeded" ]; then
@@ -99,9 +112,9 @@ steps:
     #   PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
     # fi
 
-    # # Send the Slack notification with both pipeline and artifact URLs as hyperlinks
-    # curl -X POST -H 'Content-type: application/json' --data "{
-    #   \"text\": \"$PIPELINE_MESSAGE\"
-    # }" $(slack_webhook_url)  # Use the Slack Webhook URL from the variable group
+    # Send the Slack notification with both pipeline and artifact URLs as hyperlinks
+    curl -X POST -H 'Content-type: application/json' --data "{
+      \"text\": \"$PIPELINE_MESSAGE\"
+    }" $(slack_webhook_url)  # Use the Slack Webhook URL from the variable group
   displayName: 'Notify Slack'
   condition: always() 

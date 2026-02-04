@@ -12,8 +12,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  FEED_NAME: cdpplatformfeed
-  ORG_NAME: dluhctst
+  FEED_NAME: cdpplatformfeed # Same in test + prod organisations
 
 steps:
 # checkout current repository onto the build agent
@@ -43,6 +42,7 @@ steps:
 # Create the repository URL with 'pkgs'
 - powershell: |
     $pkgsRepoUrl = "$(System.CollectionUri)".Replace("dev.azure.com", "pkgs.dev.azure.com")
+    Write-Host "Repository URL: $pkgsRepoUrl"
     Write-Host "##vso[task.setvariable variable=pkgsRepositoryUrl]$pkgsRepoUrl"
   displayName: 'Set pkgs repository URL variable'
 

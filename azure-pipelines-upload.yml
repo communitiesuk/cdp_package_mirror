@@ -40,11 +40,17 @@ steps:
   inputs:
     artifactFeeds: $(FEED_NAME)
 
+# Create the repository URL with 'pkgs'
+- powershell: |
+    $pkgsRepoUrl = "$(System.CollectionUri)".Replace("dev.azure.com", "pkgs.dev.azure.com") + "/_packaging/$(FEED_NAME)/pypi/upload/"
+    Write-Host "##vso[task.setvariable variable=pkgsRepositoryUrl]$pkgsRepoUrl"
+  displayName: 'Set pkgs repository URL variable'
+
 # upload directly to org feed
 - script: |
     twine upload \
       --skip-existing \
-      --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
+      --repository-url $(pkgsRepositoryUrl) \
       -u __token__ \
       -p $SYSTEM_ACCESSTOKEN \
       downloaded_packages/*

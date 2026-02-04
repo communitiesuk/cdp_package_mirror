@@ -42,7 +42,7 @@ steps:
 
 # Create the repository URL with 'pkgs'
 - powershell: |
-    $pkgsRepoUrl = "$(System.CollectionUri)".Replace("dev.azure.com", "pkgs.dev.azure.com") + "/_packaging/$(FEED_NAME)/pypi/upload/"
+    $pkgsRepoUrl = "$(System.CollectionUri)".Replace("dev.azure.com", "pkgs.dev.azure.com")
     Write-Host "##vso[task.setvariable variable=pkgsRepositoryUrl]$pkgsRepoUrl"
   displayName: 'Set pkgs repository URL variable'
 
@@ -50,7 +50,7 @@ steps:
 - script: |
     twine upload \
       --skip-existing \
-      --repository-url $(pkgsRepositoryUrl) \
+      --repository-url $(pkgsRepositoryUrl)_packaging/$(FEED_NAME)/pypi/upload/ \
       -u __token__ \
       -p $SYSTEM_ACCESSTOKEN \
       downloaded_packages/*

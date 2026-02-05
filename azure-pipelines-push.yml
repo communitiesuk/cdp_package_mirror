@@ -67,7 +67,6 @@ steps:
 
     # Fail the step if vulnerabilities exist
     pip-audit -r requirements.txt
-    # echo "$AUDIT_OUTPUT" | grep -q "Found .* known vulnerability" && exit 1 || exit 0
   displayName: Enforce security gate and capture output
 
 # send Slack notification (reflects success or failure of the pipeline)
@@ -105,4 +104,8 @@ steps:
       \"text\": \"$PIPELINE_MESSAGE\"
     }" $(slack_webhook_url)  # Use the Slack Webhook URL from the variable group
   displayName: 'Notify Slack'
-  condition: always() 
+  condition: >
+    and(
+      always(),
+      eq(variables['System.CollectionUri'], 'https://dev.azure.com/mhclg/')
+    )

@@ -2,8 +2,12 @@
 set -e
 
 # if "dev" environment, exit early - dev has no restrictions
-if [ "$env" == "dev" ]; then
+if [ "$env" = "dev" ]; then
   exit 0
+elif [ "$env" = "tst" ]; then 
+  ORGANISATION="dluhctst"
+elif [ "$env" = "prd" ]; then
+  ORGANISATION="mhclg"
 fi
 
 # extract the access token from the json response - note jq not available
@@ -22,5 +26,5 @@ fi
 # add index url to default pip.conf
 cat <<EOF | sudo tee /etc/pip.conf
 [global]
-index-url = https://__token__:${ACCESS_TOKEN}@pkgs.dev.azure.com/dluhctst/_packaging/cdpplatformfeed/pypi/simple
+index-url = https://__token__:${ACCESS_TOKEN}@pkgs.dev.azure.com/${ORGANISATION}/_packaging/cdpplatformfeed/pypi/simple
 EOF

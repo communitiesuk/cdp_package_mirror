@@ -55,10 +55,19 @@ steps:
     targetPath: audit-report
     artifact: pip-audit-report
 
-# ensure pipeline fails in the event of vulnerabilities
 - script: |
+    set -o pipefail
+
+    AUDIT_OUTPUT=$(pip-audit -r requirements.txt 2>&1 || true)
+
+    # Escape newlines so Azure can store it
+    AUDIT_OUTPUT_ESCAPED=$(echo "$AUDIT_OUTPUT" | sed ':a;N;$!ba;s/\n/\\n/g')
+
+    echo "##vso[task.setvariable variable=PIP_AUDIT_OUTPUT]$AUDIT_OUTPUT_ESCAPED"
+
+    # Fail the step if vulnerabilities exist
     pip-audit -r requirements.txt
-  displayName: Enforce security gate
+  displayName: Enforce security gate and capture output
 
 # send Slack notification (reflects success or failure of the pipeline)
 - script: |
@@ -74,11 +83,20 @@ steps:
       PIPELINE_STATUS="failed"
     fi
 
+    AUDIT_OUTPUT=$(printf "%b" "$(PIP_AUDIT_OUTPUT)" \
+    | tr -d '\r' \
+    | sed 's/^[[:space:]]*//')
+
     # Set message text based on pipeline status
     if [ "$PIPELINE_STATUS" == "succeeded" ]; then
       PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
     else
-      PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+      PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed! Pip audit output:
+      \`\`\`
+      $AUDIT_OUTPUT
+      \`\`\`
+
+      <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
     fi
 
     # Send the Slack notification with both pipeline and artifact URLs as hyperlinks
@@ -86,4 +104,8 @@ steps:
       \"text\": \"$PIPELINE_MESSAGE\"
     }" $(slack_webhook_url)  # Use the Slack Webhook URL from the variable group
   displayName: 'Notify Slack'
-  condition: always() 
+  condition: >
+    and(
+      always(),
+      eq(variables['System.CollectionUri'], 'https://dev.azure.com/mhclg/')
+    )

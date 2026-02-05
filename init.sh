@@ -5,9 +5,9 @@ set -e
 if [ "$env" = "dev" ]; then
   exit 0
 elif [ "$env" = "tst" ]; then 
-  ORGANISATION="dluhctst"
+  export ORGANISATION="dluhctst"
 elif [ "$env" = "prd" ]; then
-  ORGANISATION="mhclg"
+  export ORGANISATION="mhclg"
 fi
 
 # extract the access token from the json response - note jq not available

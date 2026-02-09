@@ -12,8 +12,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  FEED_NAME: cdpplatformfeed
-  ORG_NAME: dluhctst
+  FEED_NAME: cdpplatformfeed # Same in test + prod organisations
 
 steps:
 # checkout current repository onto the build agent
@@ -40,11 +39,18 @@ steps:
   inputs:
     artifactFeeds: $(FEED_NAME)
 
+# Create the repository URL with 'pkgs'
+- powershell: |
+    $pkgsRepoUrl = "$(System.CollectionUri)".Replace("dev.azure.com", "pkgs.dev.azure.com")
+    Write-Host "Repository URL: $pkgsRepoUrl"
+    Write-Host "##vso[task.setvariable variable=pkgsRepositoryUrl]$pkgsRepoUrl"
+  displayName: 'Set pkgs repository URL variable'
+
 # upload directly to org feed
 - script: |
     twine upload \
       --skip-existing \
-      --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
+      --repository-url $(pkgsRepositoryUrl)_packaging/$(FEED_NAME)/pypi/upload/ \
       -u __token__ \
       -p $SYSTEM_ACCESSTOKEN \
       downloaded_packages/*

@@ -81,12 +81,29 @@ steps:
       PACKAGE="${line%%==*}"
       VERSION="${line##*==}"
       
-      echo "Deleting vulnerable package: $line"
+      # echo "Deleting vulnerable package: $line"
 
-      curl -f -sS -X DELETE \
+      response=$(curl -f -sS -w "\n%{http_code}" -X DELETE \
         -H "Authorization: $AUTH" \
         -H "Content-Type: application/json" \
-        "https://pkgs.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1"
+        "https://pkgs.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1") || true
+
+      # Separate body and HTTP code
+      http_code=$(echo "$response" | tail -n1)
+      body=$(echo "$response" | sed '$d')
+
+      if [[ "$http_code" != "204" ]]; then
+        echo "❌ Failed to delete package $PACKAGE==$VERSION"
+        echo "HTTP $http_code response: $body"
+        exit 1
+      else
+        echo "✔ Successfully deleted $PACKAGE==$VERSION"
+      fi
+
+      # curl -f -sS -X DELETE \
+      #   -H "Authorization: $AUTH" \
+      #   -H "Content-Type: application/json" \
+      #   "https://pkgs.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1"
     done
   displayName: Delete Vulnerable Package from Azure Artifacts feed
   env:

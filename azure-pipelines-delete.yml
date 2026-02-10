@@ -72,9 +72,7 @@ steps:
     TOKEN="$SYSTEM_ACCESSTOKEN"
     AUTH="Bearer $TOKEN"
 
-    FEED_ID=$(curl -s -u :$TOKEN \
-      "https://dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds?api-version=7.2-preview.1" \
-      | jq -r '.value[] | select(.name=="cdporgfeed") | .id')
+    curl -s -u :$TOKEN "https://dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds?api-version=7.2-preview.1"
 
     echo $FEED_ID
 

@@ -26,12 +26,13 @@ steps:
     set -euo pipefail
 
     REQ_FILE=requirements_vulnerable.txt
-    ANY_PASS=0
+    tmpfile=$(mktemp)
 
     while IFS= read -r line; do
       [[ -z "$line" || "$line" =~ ^# ]] && continue
 
       echo "$line" > "$tmpfile"
+
       pip-audit -r "$tmpfile" >/dev/null 2>&1
       EXIT_CODE=$?
 
@@ -40,8 +41,9 @@ steps:
         rm -f "$tmpfile"
         exit 1
       fi
-
     done < "$REQ_FILE"
+    
+    rm -f "$tmpfile"
 
     if [ "$ANY_PASS" -eq 1 ]; then
       exit 1

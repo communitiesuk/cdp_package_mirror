@@ -31,12 +31,13 @@ steps:
 
     while IFS= read -r line; do
       [[ -z "$line" || "$line" == \#* ]] && continue
-      echo "$line"
+      
       echo "$line" > "$tmpfile"
 
       pip-audit -r "$tmpfile" >/dev/null 2>&1
       EXIT_CODE=$?
-
+      echo "$line"
+      echo "$EXIT_CODE"
       if [ "$EXIT_CODE" -eq 0 ]; then
         echo "$line PASSED → failing step"
         exit 1

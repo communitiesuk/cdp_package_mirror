@@ -69,8 +69,7 @@ steps:
     FEED="cdporgfeed"
 
     # OAuth token from pipeline
-    # TOKEN="$SYSTEM_ACCESSTOKEN"
-    TOKEN="xxx"
+    TOKEN="$SYSTEM_ACCESSTOKEN"
     AUTH="Bearer $TOKEN"
 
     # Read all lines into an array first

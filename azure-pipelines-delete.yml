@@ -82,7 +82,7 @@ steps:
       
       echo "$pkg"
       echo "$ver"
-
+    done
       # az artifacts package delete \
       # --organization "$ORG_URL" \
       # --project "$PROJECT" \

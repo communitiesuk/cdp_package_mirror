@@ -55,21 +55,22 @@ steps:
 #       exit 1
 #     fi
 
-#     echo "✔ All dependencies failed audit as required"
+#     echo "All dependencies failed audit as required"
 #   displayName: Validate Only Failed Scanned Packages
 
-
-# authenticate to azure artifact feed
-- task: PipAuthenticate@1
-  inputs:
-    artifactFeeds: cdporgfeed
-    # artifactFeeds: $(FEED_NAME)
-
-# upload directly to org feed
 - script: |
+    #!/usr/bin/env bash
     set -euo pipefail
 
     REQ_FILE=requirements_vulnerable.txt
+
+    ORG="dluhctst"
+    PROJECT="CDPT"
+    FEED="cdporgfeed"
+
+    # OAuth token from pipeline
+    TOKEN="$SYSTEM_ACCESSTOKEN"
+    AUTH="Bearer $TOKEN"
 
     # Read all lines into an array first
     mapfile -t packages < "$REQ_FILE"
@@ -77,20 +78,46 @@ steps:
     for line in "${packages[@]}"; do
       [[ -z "$line" || "$line" == \#* ]] && continue
 
-      pkg=$(echo "$line" | cut -d'=' -f1)
-      ver=$(echo "$line" | cut -d'=' -f3)
+      $PACKAGE=$(echo "$line" | cut -d'=' -f1)
+      $VERSION=$(echo "$line" | cut -d'=' -f3)
       
-      echo "$pkg"
-      echo "$ver"
-    done
-      # az artifacts package delete \
-      # --organization "$ORG_URL" \
-      # --project "$PROJECT" \
-      # --feed "$FEED" \
-      # --package-name "$pkg" \
-      # --package-type "PyPI" \
-      # --version "$ver" \
-      # --yes
+      echo "Deleting vulnerable package: $line"
+
+      curl -X DELETE \
+        -H "Authorization: $AUTH" \
+        -H "Content-Type: application/json" \
+        "https://pkgs.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1"
   displayName: Delete Vulnerable Package from Azure Artifacts feed
   env:
-    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+# - task: AzureCLI@2
+#   displayName: "Delete Vulnerable Package from Azure Artifacts feed"
+#   inputs:
+#     azureSubscription: ''
+#     scriptType: bash
+#     scriptLocation: inlineScript
+#     inlineScript: |
+#       set -euo pipefail
+
+#       REQ_FILE=requirements_vulnerable.txt
+
+#       # Read all lines into an array first
+#       mapfile -t packages < "$REQ_FILE"
+
+#       for line in "${packages[@]}"; do
+#         [[ -z "$line" || "$line" == \#* ]] && continue
+
+#         pkg=$(echo "$line" | cut -d'=' -f1)
+#         ver=$(echo "$line" | cut -d'=' -f3)
+        
+#         echo "Deleting vulnerable package: $line"
+
+#         az artifacts package delete \
+#           --organization "https://dev.azure.com/$(System.CollectionUri)" \
+#           --project "$(System.TeamProject)" \
+#           --feed "cdporgfeed" \
+#           --package-name $pkg \
+#           --package-type "PyPI" \
+#           --version "$ver" \
+#           --yes

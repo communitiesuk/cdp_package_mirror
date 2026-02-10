@@ -89,6 +89,7 @@ steps:
         "https://pkgs.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1") || true
 
       # Separate body and HTTP code
+      echo "$response"
       http_code=$(echo "$response" | tail -n1)
       body=$(echo "$response" | sed '$d')
 

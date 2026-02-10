@@ -81,7 +81,8 @@ steps:
       IFS='==' read -r PACKAGE VERSION <<< "$line"
       
       echo "Deleting vulnerable package: $PACKAGE==$VERSION"
-      
+      echo $PACKAGE
+      echo $VERSION
       echo "Deleting vulnerable package: $line"
 
       curl -X DELETE \

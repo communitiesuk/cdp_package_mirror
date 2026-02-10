@@ -93,6 +93,7 @@ steps:
       echo "HERE"
       echo $response
       id=$(echo "$response" | grep -oP '"\$id"\s*:\s*"\K[^"]+')
+      echo $id
 
       if [[ "$id" == "1" ]]; then
         echo "❌ Package $PACKAGE==$VERSION not found in feed $FEED. Failing pipeline."

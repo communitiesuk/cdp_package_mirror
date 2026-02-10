@@ -81,7 +81,7 @@ steps:
       PACKAGE="${line%%==*}"
       VERSION="${line##*==}"
       
-      # echo "Deleting vulnerable package: $line"
+      echo "Deleting vulnerable package: $line"
 
       curl -X DELETE \
         -H "Authorization: $AUTH" \

@@ -69,7 +69,8 @@ steps:
     FEED="cdporgfeed"
 
     # OAuth token from pipeline
-    TOKEN="$SYSTEM_ACCESSTOKEN"
+    # TOKEN="$SYSTEM_ACCESSTOKEN"
+    TOKEN="xxx"
     AUTH="Bearer $TOKEN"
 
     # Read all lines into an array first
@@ -81,8 +82,6 @@ steps:
       PACKAGE="${line%%==*}"
       VERSION="${line##*==}"
       
-      echo $PACKAGE
-      echo $VERSION
       echo "Deleting vulnerable package: $line"
 
       curl -X DELETE \

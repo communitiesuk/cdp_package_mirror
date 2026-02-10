@@ -83,7 +83,7 @@ steps:
       
       echo "Deleting vulnerable package: $line"
 
-      curl -f -X DELETE \
+      curl -f -sS -X DELETE \
         -H "Authorization: $AUTH" \
         -H "Content-Type: application/json" \
         "https://pkgs.dev.azure.com/$ORG/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1"

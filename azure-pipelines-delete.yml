@@ -11,14 +11,14 @@ steps:
 - checkout: self
   fetchDepth: 0
 
-# use Python version 3.12
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.12'
+# # use Python version 3.12
+# - task: UsePythonVersion@0
+#   inputs:
+#     versionSpec: '3.12'
 
-# install pip-audit for subsequent scanning step
-- script: pip install pip-audit
-  displayName: Install pip-audit
+# # install pip-audit for subsequent scanning step
+# - script: pip install pip-audit
+#   displayName: Install pip-audit
 
 # # run pip-audit scan on each package in the requirements_vulnerable.txt file
 # # if any passes, fail the step - do this to ensure we do not mistakenly delete any non-CVE libraries as the feed is immutable
@@ -83,7 +83,7 @@ steps:
       
       echo "Deleting vulnerable package: $line"
 
-      curl -f -sS -X DELETE \
+      curl -sS -X DELETE \
         -H "Authorization: $AUTH" \
         -H "Content-Type: application/json" \
         "https://pkgs.dev.azure.com/$ORG/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1"

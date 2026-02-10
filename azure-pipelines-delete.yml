@@ -90,6 +90,8 @@ steps:
         "https://pkgs.dev.azure.com/$ORG/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1")
 
       # Extract the $id field from the JSON (without jq)
+      echo "HERE"
+      echo $reponse
       id=$(echo "$response" | grep -oP '"\$id"\s*:\s*"\K[^"]+')
 
       if [[ "$id" == "1" ]]; then

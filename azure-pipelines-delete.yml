@@ -91,7 +91,7 @@ steps:
 
       # Extract the $id field from the JSON (without jq)
       echo "HERE"
-      echo $reponse
+      echo $response
       id=$(echo "$response" | grep -oP '"\$id"\s*:\s*"\K[^"]+')
 
       if [[ "$id" == "1" ]]; then

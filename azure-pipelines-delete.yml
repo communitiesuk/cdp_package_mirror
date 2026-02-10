@@ -33,22 +33,21 @@ steps:
     mapfile -t packages < "$REQ_FILE"
 
     for line in "${packages[@]}"; do
-      # skip empty lines or comments
       [[ -z "$line" || "$line" == \#* ]] && continue
 
-      set +e
-      pip-audit "$line" >/dev/null 2>&1
-      EXIT_CODE=$?
-      set -e
+      # create a temporary one-line requirements file
+      tmpfile=$(mktemp)
+      echo "$line" > "$tmpfile"
 
-      echo "DEBUG: $line exit code = $EXIT_CODE"
-
-      if [ "$EXIT_CODE" -eq 0 ]; then
+      # run pip-audit on that single package line
+      if pip-audit -r "$tmpfile" >/dev/null 2>&1; then
         echo "$line PASSED → failing step"
         ANY_PASS=1
       else
         echo "$line FAILED → as expected"
       fi
+
+      rm -f "$tmpfile"
     done
 
     if [ "$ANY_PASS" -eq 1 ]; then

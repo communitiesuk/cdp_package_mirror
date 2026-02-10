@@ -81,12 +81,31 @@ steps:
       PACKAGE="${line%%==*}"
       VERSION="${line##*==}"
       
-      echo "Deleting vulnerable package: $line"
+      # echo "Deleting vulnerable package: $line"
 
-      curl -sS -X DELETE \
+      # Capture the response body from curl
+      response=$(curl -sS -X DELETE \
         -H "Authorization: $AUTH" \
         -H "Content-Type: application/json" \
-        "https://pkgs.dev.azure.com/$ORG/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1"
+        "https://pkgs.dev.azure.com/$ORG/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1")
+
+      # Extract the $id field from the JSON (without jq)
+      id=$(echo "$response" | grep -oP '"\$id"\s*:\s*"\K[^"]+')
+
+      if [[ "$id" == "1" ]]; then
+        echo "❌ Package $PACKAGE==$VERSION not found in feed $FEED. Failing pipeline."
+        echo "Error: $response"
+        exit 1
+      else
+        echo "✔ Successfully deleted $PACKAGE==$VERSION or other status"
+      fi
+
+    done
+
+      # curl -sS -X DELETE \
+      #   -H "Authorization: $AUTH" \
+      #   -H "Content-Type: application/json" \
+      #   "https://pkgs.dev.azure.com/$ORG/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1"
     done
   displayName: Delete Vulnerable Package from Azure Artifacts feed
   env:

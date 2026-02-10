@@ -52,7 +52,7 @@ steps:
     fi
 
     echo "✔ All dependencies failed audit as required"
-  displayName: Run pip-audit and generate report
+  displayName: Validate Only Failed Scanned Packages
 
 # - script: |
 #     set -o pipefail

@@ -23,29 +23,40 @@ steps:
 # run pip-audit scan on each package in the requirements_vulnerable.txt file
 # if any passes, fail the step - do this to ensure we do not mistakenly delete any non-CVE libraries as the feed is immutable
 - script: |
+    #!/usr/bin/env bash
     set -euo pipefail
 
     REQ_FILE=requirements_vulnerable.txt
-    tmpfile=$(mktemp)
-    trap 'rm -f "$tmpfile"' EXIT
+    ANY_PASS=0
 
-    while IFS= read -r line; do
+    # Open the requirements file on FD 3 so commands inside the loop don't consume stdin
+    while IFS= read -r line <&3; do
+      # Skip empty lines and comments
       [[ -z "$line" || "$line" == \#* ]] && continue
-      
-      echo "$line" > "$tmpfile"
 
-      pip-audit -r "$tmpfile" >/dev/null 2>&1 || true
+      # Run pip-audit on this single package
+      set +e
+      pip-audit "$line" >/dev/null 2>&1
       EXIT_CODE=$?
-      echo $EXIT_CODE
-      # if [ "$EXIT_CODE" -eq 0 ]; then
-      #   echo "$line PASSED → failing step"
-      #   exit 1
-      # else
-      #   echo "$line FAILED → as expected"
-      # fi
-    done < "$REQ_FILE"
+      set -e
 
-    echo "All dependencies failed audit as required"
+      echo "DEBUG: $line exit code = $EXIT_CODE"
+
+      if [ "$EXIT_CODE" -eq 0 ]; then
+        echo "$line PASSED → failing step"
+        ANY_PASS=1
+      else
+        echo "$line FAILED → as expected"
+      fi
+
+    done 3< "$REQ_FILE"
+
+    if [ "$ANY_PASS" -eq 1 ]; then
+      echo "❌ At least one package passed audit → failing step"
+      exit 1
+    fi
+
+    echo "✔ All dependencies failed audit as required"
   displayName: Validate Only Failed Scanned Packages
 
 # - script: |

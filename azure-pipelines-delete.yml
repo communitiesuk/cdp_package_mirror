@@ -36,13 +36,15 @@ steps:
 
       echo "$line" | pip-audit -r - >/dev/null 2>&1
       EXIT_CODE=$?
+      echo "HERE"
 
       if [ "$EXIT_CODE" -eq 0 ]; then
-        echo "❌ $line PASSED audit → failing step"
+        echo "$line PASSED audit → failing step"
+        echo "HERE2"
         ANY_PASS=1
         break
       else
-        echo "✅ $line failed audit (expected)"
+        echo "$line failed audit (expected)"
       fi
     done < "$REQ_FILE"
 

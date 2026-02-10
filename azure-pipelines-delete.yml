@@ -29,23 +29,18 @@ steps:
     ANY_PASS=0
 
     while IFS= read -r line; do
-      # Skip empty lines and comments
       [[ -z "$line" || "$line" =~ ^# ]] && continue
 
-      echo "Auditing dependency: $line"
-
-      echo "$line" | pip-audit -r - >/dev/null 2>&1
+      echo "$line" > "$tmpfile"
+      pip-audit -r "$tmpfile" >/dev/null 2>&1
       EXIT_CODE=$?
-      echo "HERE"
 
       if [ "$EXIT_CODE" -eq 0 ]; then
-        echo "$line PASSED audit → failing step"
-        echo "HERE2"
-        ANY_PASS=1
-        break
-      else
-        echo "$line failed audit (expected)"
+        echo "$line PASSED → failing step"
+        rm -f "$tmpfile"
+        exit 1
       fi
+
     done < "$REQ_FILE"
 
     if [ "$ANY_PASS" -eq 1 ]; then

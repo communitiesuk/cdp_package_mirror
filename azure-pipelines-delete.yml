@@ -78,9 +78,9 @@ steps:
     for line in "${packages[@]}"; do
       [[ -z "$line" || "$line" == \#* ]] && continue
 
-      IFS='==' read -r PACKAGE VERSION <<< "$line"
+      PACKAGE="${line%%==*}"
+      VERSION="${line##*==}"
       
-      echo "Deleting vulnerable package: $PACKAGE==$VERSION"
       echo $PACKAGE
       echo $VERSION
       echo "Deleting vulnerable package: $line"

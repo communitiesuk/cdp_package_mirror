@@ -82,6 +82,7 @@ steps:
       VERSION="${line##*==}"
       
       echo "Deleting vulnerable package: $line"
+      echo "https://pkgs.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1"
 
       curl -X DELETE \
         -H "Authorization: $AUTH" \

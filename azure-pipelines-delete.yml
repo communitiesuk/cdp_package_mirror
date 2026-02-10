@@ -92,6 +92,5 @@ steps:
       # --version "$ver" \
       # --yes
   displayName: Delete Vulnerable Package from Azure Artifacts feed
-  condition: succeeded("Install pip-audit")
   env:
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)

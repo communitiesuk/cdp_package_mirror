@@ -1,0 +1,86 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: core-cdp-vars
+
+steps:
+# checkout current repository onto the build agent
+- checkout: self
+  fetchDepth: 0
+
+# use Python version 3.12
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.12'
+
+# install pip-audit for subsequent scanning step
+- script: pip install pip-audit
+  displayName: Install pip-audit
+
+# run pip-audit scan on each package in the requirements_vulnerable.txt file
+# if any passes, fail the step - do this to ensure we do not mistakenly delete any non-CVE libraries as the feed is immutable
+- script: |
+    set -euo pipefail
+
+    REQ_FILE=requirements_vulnerable.txt
+    ANY_PASS=0
+
+    while IFS= read -r line; do
+      # Skip empty lines and comments
+      [[ -z "$line" || "$line" =~ ^# ]] && continue
+
+      echo "Auditing dependency: $line"
+
+      echo "$line" | pip-audit -r - >/dev/null 2>&1
+      EXIT_CODE=$?
+
+      if [ "$EXIT_CODE" -eq 0 ]; then
+        echo "❌ $line PASSED audit → failing step"
+        ANY_PASS=1
+        break
+      else
+        echo "✅ $line failed audit (expected)"
+      fi
+    done < "$REQ_FILE"
+
+    if [ "$ANY_PASS" -eq 1 ]; then
+      exit 1
+    fi
+
+    echo "✔ All dependencies failed audit as required"
+  displayName: Run pip-audit and generate report
+
+# - script: |
+#     set -o pipefail
+
+#     AUDIT_OUTPUT=$(pip-audit -r requirements.txt 2>&1 || true)
+
+#     # Escape newlines so Azure can store it
+#     AUDIT_OUTPUT_ESCAPED=$(echo "$AUDIT_OUTPUT" | sed ':a;N;$!ba;s/\n/\\n/g')
+
+#     echo "##vso[task.setvariable variable=PIP_AUDIT_OUTPUT]$AUDIT_OUTPUT_ESCAPED"
+
+#     # Fail the step if vulnerabilities exist
+#     pip-audit -r requirements.txt
+#   displayName: Enforce security gate and capture output
+
+
+# # authenticate to azure artifact feed
+# - task: PipAuthenticate@1
+#   inputs:
+#     artifactFeeds: $(FEED_NAME)
+
+# # upload directly to org feed
+# - script: |
+#     twine upload \
+#       --skip-existing \
+#       --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
+#       -u __token__ \
+#       -p $SYSTEM_ACCESSTOKEN \
+#       downloaded_packages/*
+#   displayName: Upload packages to Azure Artifacts feed
+#   env:
+#     SYSTEM_ACCESSTOKEN: $(System.AccessToken)

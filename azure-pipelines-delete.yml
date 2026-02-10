@@ -29,12 +29,13 @@ steps:
     REQ_FILE=requirements_vulnerable.txt
     ANY_PASS=0
 
-    # Open the requirements file on FD 3 so commands inside the loop don't consume stdin
-    while IFS= read -r line <&3; do
-      # Skip empty lines and comments
+    # Read all lines into an array first
+    mapfile -t packages < "$REQ_FILE"
+
+    for line in "${packages[@]}"; do
+      # skip empty lines or comments
       [[ -z "$line" || "$line" == \#* ]] && continue
 
-      # Run pip-audit on this single package
       set +e
       pip-audit "$line" >/dev/null 2>&1
       EXIT_CODE=$?
@@ -48,8 +49,7 @@ steps:
       else
         echo "$line FAILED → as expected"
       fi
-
-    done 3< "$REQ_FILE"
+    done
 
     if [ "$ANY_PASS" -eq 1 ]; then
       echo "❌ At least one package passed audit → failing step"

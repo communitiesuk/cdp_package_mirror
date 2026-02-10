@@ -30,8 +30,8 @@ steps:
     trap 'rm -f "$tmpfile"' EXIT
 
     while IFS= read -r line; do
-      [[ -z "$line" || "$line" =~ ^# ]] && continue
-
+      [[ -z "$line" || "$line" == \#* ]] && continue
+      echo "$line"
       echo "$line" > "$tmpfile"
 
       pip-audit -r "$tmpfile" >/dev/null 2>&1

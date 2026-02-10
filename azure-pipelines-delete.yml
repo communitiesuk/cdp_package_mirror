@@ -27,6 +27,7 @@ steps:
 
     REQ_FILE=requirements_vulnerable.txt
     tmpfile=$(mktemp)
+    trap 'rm -f "$tmpfile"' EXIT
 
     while IFS= read -r line; do
       [[ -z "$line" || "$line" =~ ^# ]] && continue
@@ -38,14 +39,11 @@ steps:
 
       if [ "$EXIT_CODE" -eq 0 ]; then
         echo "$line PASSED → failing step"
-        rm -f "$tmpfile"
         exit 1
       else
         echo "$line FAILED → as expected"
       fi
     done < "$REQ_FILE"
-    
-    rm -f "$tmpfile"
 
     if [ "$ANY_PASS" -eq 1 ]; then
       exit 1

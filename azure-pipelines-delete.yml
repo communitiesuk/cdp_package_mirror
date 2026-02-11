@@ -4,10 +4,8 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  variables:
-    FEED_NAME: cdpplatformfeed
-    ORG_NAME: dluhctst
-
+  FEED_NAME: cdpplatformfeed
+  ORG_NAME: dluhctst
 
 steps:
 # checkout current repository onto the build agent

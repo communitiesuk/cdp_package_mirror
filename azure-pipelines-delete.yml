@@ -95,7 +95,7 @@ steps:
       id=$(echo "$response" | jq -r '.id | tostring')
       echo $id
 
-      if [[ "$id" == "1" ]]; then
+      if [[ "$id" == "null" ]]; then
         echo "❌ Package $PACKAGE==$VERSION not found in feed $FEED. Failing pipeline."
         echo "Error: $response"
         exit 1

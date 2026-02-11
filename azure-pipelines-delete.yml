@@ -92,7 +92,7 @@ steps:
       # Extract the $id field from the JSON
       echo "HERE"
       echo $response
-      id=$(echo "$response" | jq -r '.id // empty')
+      id=$(echo "$response" | jq -r '.id | tostring')
       echo $id
 
       if [[ "$id" == "1" ]]; then

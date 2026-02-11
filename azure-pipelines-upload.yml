@@ -12,8 +12,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  FEED_NAME: cdpplatformfeed
-  ORG_NAME: dluhctst
+  - group: core-cdp-vars
 
 steps:
 # checkout current repository onto the build agent
@@ -38,13 +37,13 @@ steps:
 # authenticate to azure artifact feed
 - task: PipAuthenticate@1
   inputs:
-    artifactFeeds: $(FEED_NAME)
+    artifactFeeds: $(feed_name)
 
 # upload directly to org feed
 - script: |
     twine upload \
       --skip-existing \
-      --repository-url https://pkgs.dev.azure.com/$(ORG_NAME)/_packaging/$(FEED_NAME)/pypi/upload/ \
+      --repository-url https://pkgs.dev.azure.com/$(org_name)/_packaging/$(feed_name)/pypi/upload/ \
       -u __token__ \
       -p $SYSTEM_ACCESSTOKEN \
       downloaded_packages/*

@@ -4,8 +4,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  FEED_NAME: cdpplatformfeed
-  ORG_NAME: dluhctst
+  - group: core-cdp-vars
 
 steps:
 # checkout current repository onto the build agent
@@ -82,13 +81,13 @@ steps:
       response=$(curl -sS -X DELETE \
         -H "Authorization: $AUTH" \
         -H "Content-Type: application/json" \
-        "https://pkgs.dev.azure.com/$(ORG_NAME)/_apis/packaging/feeds/$(FEED_NAME)/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1")
+        "https://pkgs.dev.azure.com/$(org_name)/_apis/packaging/feeds/$(feed_name)/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1")
 
       # extract the $id field from the JSON
       id=$(echo "$response" | jq -r '.id | tostring')
 
       if [[ "$id" == "null" ]]; then
-        echo "Package $PACKAGE==$VERSION not found in feed $FEED. Failing pipeline."
+        echo "Package $PACKAGE==$VERSION not found in feed $(feed_name). Failing pipeline."
         echo "Error: $response"
         exit 1
       else

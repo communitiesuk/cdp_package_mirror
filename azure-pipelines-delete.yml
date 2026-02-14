@@ -1,0 +1,101 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: core-cdp-vars
+
+steps:
+# checkout current repository onto the build agent
+- checkout: self
+  fetchDepth: 0
+
+# use Python version 3.12
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.12'
+
+# install pip-audit for subsequent scanning step
+- script: pip install pip-audit
+  displayName: Install pip-audit
+
+# run pip-audit scan on each package in the requirements_vulnerable.txt file
+# if any passes, fail the step - do this to ensure we do not mistakenly delete any non-CVE libraries as the feed is immutable
+- script: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    REQ_FILE=requirements_vulnerable.txt
+    ANY_PASS=0
+
+    # Read all lines into an array first
+    mapfile -t packages < "$REQ_FILE"
+
+    for line in "${packages[@]}"; do
+      [[ -z "$line" || "$line" == \#* ]] && continue
+
+      # create a temporary one-line requirements file
+      tmpfile=$(mktemp)
+      echo "$line" > "$tmpfile"
+
+      # run pip-audit on that single package line
+      if pip-audit -r "$tmpfile" >/dev/null 2>&1; then
+        echo "$line PASSED → failing step"
+        ANY_PASS=1
+      else
+        echo "$line FAILED → as expected"
+      fi
+
+      rm -f "$tmpfile"
+    done
+
+    if [ "$ANY_PASS" -eq 1 ]; then
+      echo "At least one package passed audit → failing step"
+      exit 1
+    fi
+
+    echo "All dependencies failed audit as required"
+  displayName: Validate Only Failed Scanned Packages
+
+- script: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    REQ_FILE=requirements_vulnerable.txt
+
+    # OAuth token from pipeline
+    TOKEN="$SYSTEM_ACCESSTOKEN"
+    AUTH="Bearer $TOKEN"
+
+    # read all lines into an array first
+    mapfile -t packages < "$REQ_FILE"
+
+    for line in "${packages[@]}"; do
+      [[ -z "$line" || "$line" == \#* ]] && continue
+
+      PACKAGE="${line%%==*}"
+      VERSION="${line##*==}"
+      
+      # capture the response body from curl
+      response=$(curl -sS -X DELETE \
+        -H "Authorization: $AUTH" \
+        -H "Content-Type: application/json" \
+        "https://pkgs.dev.azure.com/$(org_name)/_apis/packaging/feeds/$(feed_name)/pypi/packages/$PACKAGE/versions/$VERSION?api-version=7.2-preview.1")
+
+      # extract the $id field from the JSON
+      id=$(echo "$response" | jq -r '.id | tostring')
+
+      if [[ "$id" == "null" ]]; then
+        echo "Package $PACKAGE==$VERSION not found in feed $(feed_name). Failing pipeline."
+        echo "Error: $response"
+        exit 1
+      else
+        echo "Successfully deleted $PACKAGE==$VERSION or other status"
+        echo "Success: $response"
+      fi
+
+    done
+  displayName: Delete Vulnerable Package from Azure Artifacts feed
+  env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)

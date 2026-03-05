@@ -37,7 +37,6 @@ steps:
 - script: |
     set -euo pipefail
 
-    REQ_DIR=requirements
     OUT_DIR=pipaudit_reports
 
     mkdir -p "$OUT_DIR"
@@ -47,21 +46,17 @@ steps:
     python -m pip install -q pip-audit
 
     shopt -s nullglob
-    FILES=("$REQ_DIR"/*.txt)
 
-    if [ ${#FILES[@]} -eq 0 ]; then
-      echo "No requirements*.txt found in: $REQ_DIR" >&2
-      exit 1
-    fi
+    for f in requirements/*.txt; do
+      team_name="$(basename "$f" .txt)"
+      echo "== Auditing: $team_name =="
 
-    for f in "${FILES[@]}"; do
-      base="$(basename "autit_output_$f")"
-      echo "== Auditing: $base =="
+      ignored_vulns=$(jq --arg team_name "$team_name" 'map(select(.team==$team_name)) | map("--ignore-vuln " + .vulnerability_id) | join(" ")' -r  accepted_vulns.json)
 
+      echo "Ignored: $ignored_vulns"
       # JSON output (easier to post-process)
-      pip-audit -r "$f" | tee "$OUT_DIR/${base}" || true
-
-      pip-audit -r "$f" -f json > "$OUT_DIR/${base}.json" || true
+      pip-audit -r "$f" $ignored_vulns | tee "$OUT_DIR/${team_name}.txt" || true
+      pip-audit -r "$f" -f json $ignored_vulns > "$OUT_DIR/${team_name}.json" || true
     done
 
   displayName: Run pip-audit and generate report
@@ -95,6 +90,7 @@ steps:
     
     for f in pipaudit_reports/*.txt; do
       team_name=$(basename "$f" .txt)
+      echo $team_name
       if [ -s $f ]; then
         PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed for $team_name! Pip audit output:
          \`\`\`

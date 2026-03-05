@@ -93,17 +93,14 @@ steps:
     # Construct the artifact URL by appending the "view=artifacts" to the pipeline URL
     ARTIFACT_URL="${PIPELINE_URL}&view=artifacts"
     
-
-
-    # Determine the pipeline status
-    PIPELINE_STATUS="succeeded"
-    if [ "$(Agent.JobStatus)" != "Succeeded" ]; then
-      PIPELINE_STATUS="failed"
-    fi
-
-    for f in pipaudit_reports/*; do
+    for f in pipaudit_reports/*.txt; do
       if [ -s $f ]; then
         PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed for $f! Pip audit output:
+         \`\`\`
+          $(cat $f)
+          \`\`\`
+         <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+
       else
         PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded for $f! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
       fi
@@ -117,5 +114,5 @@ steps:
   condition: >
     and(
       always(),
-      eq(variables['System.CollectionUri'], 'https://dev.azure.com/mhclg/')
+      eq(variables['System.CollectionUri'], 'https://dev.azure.com/dluhctst/')
     )

@@ -1,0 +1,122 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+schedules:
+  - cron: "0 7 * * *"
+    displayName: Run Scan Every Day at 7am
+    branches:
+      include:
+        - main
+    always: true
+
+variables:
+  - group: core-cdp-vars
+
+steps:
+# checkout current repository onto the build agent
+- checkout: self
+  fetchDepth: 0
+
+# use Python version 3.12
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.12'
+
+# install pip-audit for subsequent scanning step
+- script: pip install pip-audit
+  displayName: Install pip-audit
+
+# run pip-audit scan and generate security report
+- script: |
+    set -euo pipefail
+
+    REQ_DIR=requirements
+    OUT_DIR=pipaudit_reports
+
+    mkdir -p "$OUT_DIR"
+    mkdir -p $(Pipeline.Workspace)/multi_team_reports
+    # Ensure pipaudit exists
+    python -m pip install -q --upgrade pip
+    python -m pip install -q pip-audit
+
+    shopt -s nullglob
+    FILES=("$REQ_DIR"/*.txt)
+
+    if [ ${#FILES[@]} -eq 0 ]; then
+      echo "No *.txt found in: $REQ_DIR" >&2
+      exit 1
+    fi
+
+    for f in "${FILES[@]}"; do
+      team_name="$(basename "$f" .txt)"
+      echo "== Auditing: $team_name =="
+
+      ignored_vulns=$(jq --arg team_name "$team_name" 'map(select(.team==$team_name)) | map("--ignore-vuln " + .vulnerability_id) | join(" ")' -r  accepted_vulns.json)
+
+      echo "Ignored: $ignored_vulns"
+      # JSON output (easier to post-process)
+      pip-audit -r "$f" $ignored_vulns | tee "$OUT_DIR/${team_name}.txt" || true
+      pip-audit -r "$f" -f json $ignored_vulns > "$OUT_DIR/${team_name}.json" || true
+    done
+
+  displayName: Run pip-audit and generate report
+
+# publish security report json to pipeline artifact
+- task: PublishPipelineArtifact@1
+  displayName: Publish pip-audit report
+  inputs:
+    targetPath: pipaudit_reports 
+    artifact: multi_team_reports
+    publishLocation: 'pipeline'
+
+- script: |
+    set -o pipefail
+    for f in pipaudit_reports/*.txt; do
+      if [ -s $f ]; then
+        echo "$f has vulnerabilities"
+        exit 1
+      fi
+    done
+
+  displayName: Enforce security gate and capture output
+
+# send Slack notification (reflects success or failure of the pipeline)
+- script: |
+    # Construct the pipeline URL (to the build results page)
+    PIPELINE_URL="$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+    
+    # Construct the artifact URL by appending the "view=artifacts" to the pipeline URL
+    ARTIFACT_URL="${PIPELINE_URL}&view=artifacts"
+    
+    for f in pipaudit_reports/*.txt; do
+      team_name=$(basename "$f" .txt)
+      echo $team_name
+      if [ -s $f ]; then
+        PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed for $team_name! Pip audit output:
+         \`\`\`
+          $(cat $f)
+          \`\`\`
+         <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+
+      else
+        PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded for $team_name! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+      fi
+
+      curl -X POST -H 'Content-type: application/json' --data "{
+        \"text\": \"$PIPELINE_MESSAGE\"
+      }" $(slack_webhook_url)  # Use the Slack Webhook URL from the variable group
+    done
+    
+  displayName: 'Notify Slack'
+  condition: >
+    and(
+      always(),
+      eq(variables['System.CollectionUri'], 'https://dev.azure.com/dluhctst/')
+    )

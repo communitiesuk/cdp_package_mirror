@@ -47,7 +47,7 @@ steps:
     python -m pip install -q pip-audit
 
     shopt -s nullglob
-    FILES=("$REQ_DIR"/requirements*.txt)
+    FILES=("$REQ_DIR"/*.txt)
 
     if [ ${#FILES[@]} -eq 0 ]; then
       echo "No requirements*.txt found in: $REQ_DIR" >&2
@@ -94,15 +94,16 @@ steps:
     ARTIFACT_URL="${PIPELINE_URL}&view=artifacts"
     
     for f in pipaudit_reports/*.txt; do
+      team_name=$(basename "$f" .txt)
       if [ -s $f ]; then
-        PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed for $f! Pip audit output:
+        PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed for $team_name! Pip audit output:
          \`\`\`
           $(cat $f)
           \`\`\`
          <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
 
       else
-        PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded for $f! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+        PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded for $team_name! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
       fi
 
       curl -X POST -H 'Content-type: application/json' --data "{

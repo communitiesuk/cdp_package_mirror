@@ -1,9 +1,9 @@
 [
     {
-        "vulnerability_id":"CVE-2025-69662",
+        "vulnerability_id":"Example",
         "package": "",
         "version": "",
         "risk owner":"",
-        "team": "sdip"
+        "team": "team1"
     }
 ]

@@ -2,9 +2,6 @@ trigger:
   branches:
     include:
       - main
-  paths:
-    include:
-      - requirements.txt
 
 pr: none
 
@@ -31,7 +28,9 @@ steps:
 # installed scan packages locally to agent
 - script: |
     mkdir -p downloaded_packages
-    python -m pip download -r requirements.txt -d downloaded_packages
+    for f in requirements/*.txt; do
+      python -m pip download -r $f -d downloaded_packages
+    done
   displayName: Download packages from PyPI
 
 # authenticate to azure artifact feed

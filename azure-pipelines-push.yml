@@ -35,38 +35,49 @@ steps:
 
 # run pip-audit scan and generate security report
 - script: |
-    mkdir -p audit-report
+    set -euo pipefail
 
-    if [ -s requirements.txt ]; then
-      echo "Running pip-audit..."
-      pip-audit \
-        -r requirements.txt \
-        --format json \
-        --output audit-report/pip-audit-report.json || true
-    else
-      echo "No new dependencies" > audit-report/pip-audit-report.json
-    fi
+    OUT_DIR=pipaudit_reports
+
+    mkdir -p "$OUT_DIR"
+    mkdir -p $(Pipeline.Workspace)/multi_team_reports
+    # Ensure pipaudit exists
+    python -m pip install -q --upgrade pip
+    python -m pip install -q pip-audit
+
+    shopt -s nullglob
+
+    for f in requirements/*.txt; do
+      team_name="$(basename "$f" .txt)"
+      echo "== Auditing: $team_name =="
+
+      ignored_vulns=$(jq --arg team_name "$team_name" 'map(select(.team==$team_name)) | map("--ignore-vuln " + .vulnerability_id) | join(" ")' -r  accepted_vulns.json)
+
+      echo "Ignored: $ignored_vulns"
+      # JSON output (easier to post-process)
+      pip-audit -r "$f" $ignored_vulns | tee "$OUT_DIR/${team_name}.txt" || true
+      pip-audit -r "$f" -f json $ignored_vulns > "$OUT_DIR/${team_name}.json" || true
+    done
+
   displayName: Run pip-audit and generate report
 
 # publish security report json to pipeline artifact
 - task: PublishPipelineArtifact@1
   displayName: Publish pip-audit report
   inputs:
-    targetPath: audit-report
-    artifact: pip-audit-report
+    targetPath: pipaudit_reports 
+    artifact: multi_team_reports
+    publishLocation: 'pipeline'
 
 - script: |
     set -o pipefail
+    for f in pipaudit_reports/*.txt; do
+      if [ -s $f ]; then
+        echo "$f has vulnerabilities"
+        exit 1
+      fi
+    done
 
-    AUDIT_OUTPUT=$(pip-audit -r requirements.txt 2>&1 || true)
-
-    # Escape newlines so Azure can store it
-    AUDIT_OUTPUT_ESCAPED=$(echo "$AUDIT_OUTPUT" | sed ':a;N;$!ba;s/\n/\\n/g')
-
-    echo "##vso[task.setvariable variable=PIP_AUDIT_OUTPUT]$AUDIT_OUTPUT_ESCAPED"
-
-    # Fail the step if vulnerabilities exist
-    pip-audit -r requirements.txt
   displayName: Enforce security gate and capture output
 
 # send Slack notification (reflects success or failure of the pipeline)
@@ -77,32 +88,25 @@ steps:
     # Construct the artifact URL by appending the "view=artifacts" to the pipeline URL
     ARTIFACT_URL="${PIPELINE_URL}&view=artifacts"
     
-    # Determine the pipeline status
-    PIPELINE_STATUS="succeeded"
-    if [ "$(Agent.JobStatus)" != "Succeeded" ]; then
-      PIPELINE_STATUS="failed"
-    fi
+    for f in pipaudit_reports/*.txt; do
+      team_name=$(basename "$f" .txt)
+      echo $team_name
+      if [ -s $f ]; then
+        PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed for $team_name! Pip audit output:
+         \`\`\`
+          $(cat $f)
+          \`\`\`
+         <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
 
-    AUDIT_OUTPUT=$(printf "%b" "$(PIP_AUDIT_OUTPUT)" \
-    | tr -d '\r' \
-    | sed 's/^[[:space:]]*//')
+      else
+        PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded for $team_name! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
+      fi
 
-    # Set message text based on pipeline status
-    if [ "$PIPELINE_STATUS" == "succeeded" ]; then
-      PIPELINE_MESSAGE="✅ Daily Private Package Security Scan succeeded! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
-    else
-      PIPELINE_MESSAGE="🚨 Daily Private Package Security Scan failed! Pip audit output:
-      \`\`\`
-      $AUDIT_OUTPUT
-      \`\`\`
-
-      <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
-    fi
-
-    # Send the Slack notification with both pipeline and artifact URLs as hyperlinks
-    curl -X POST -H 'Content-type: application/json' --data "{
-      \"text\": \"$PIPELINE_MESSAGE\"
-    }" $(slack_webhook_url)  # Use the Slack Webhook URL from the variable group
+      curl -X POST -H 'Content-type: application/json' --data "{
+        \"text\": \"$PIPELINE_MESSAGE\"
+      }" $(slack_webhook_url)  # Use the Slack Webhook URL from the variable group
+    done
+    
   displayName: 'Notify Slack'
   condition: >
     and(

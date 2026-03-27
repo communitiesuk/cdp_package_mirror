@@ -70,6 +70,7 @@ pytest-html==4.2.0 # previously 3.2.0 (vulnerable)
 pytest-metadata==3.1.1
 pytest-mock==3.10.0 
 pytest-xdist==3.2.1
+python-calamine==0.6.2
 python-dateutil==2.9.0.post0
 python-dotenv==0.21.1
 pytz==2025.1

@@ -61,11 +61,11 @@ pydantic==2.10.6
 pygments==2.19.1
 pyjwt==2.12.0
 pylint==2.15.9
-pyodbc==5.3.0 # previously 4.0.35 (fails to install in databricks)
+pyodbc==5.3.0
 pyogrio==0.11.1
 pyproj==3.7.1
 pytest==7.2.1
-pytest-html==4.2.0 # previously 3.2.0 (vulnerable)
+pytest-html==4.2.0
 pytest-metadata==3.1.1
 pytest-mock==3.10.0 
 pytest-xdist==3.2.1

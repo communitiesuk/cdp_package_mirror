@@ -1,0 +1,9 @@
+[
+    {
+        "vulnerability_id":"Example",
+        "package": "",
+        "version": "",
+        "risk owner":"",
+        "team": "team1"
+    }
+]

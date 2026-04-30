@@ -117,7 +117,6 @@ steps:
 - script: |
     PIPELINE_URL="$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
     ARTIFACT_URL="${PIPELINE_URL}&view=artifacts"
-    BUTTONS='{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"📋 Pipeline"},"url":"'"${PIPELINE_URL}"'"},{"type":"button","text":{"type":"plain_text","text":"🔍 Scan Artifact"},"url":"'"${ARTIFACT_URL}"'"}]}'
 
     for f in pipaudit_reports/*.txt; do
       team_name=$(basename "$f" .txt)
@@ -127,15 +126,13 @@ steps:
           "Package" "CVE ID" "Fix Version" \
           "-------" "------" "-----------" \
           "$(tail -n +3 "$f" | awk '{printf "%-30s %-15s %-20s\n", $1, $2, $3}')")
-        HEADER="🚨 Scan Failed: ${team_name}"
-        BODY="$TABLE"
+        MESSAGE="🚨 Daily Private Package Security Scan failed for ${team_name}! Pip audit output:\n${TABLE}\n<${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
       else
-        HEADER="✅ Scan Passed: ${team_name}"
-        BODY="No vulnerabilities found."
+        MESSAGE="✅ Daily Private Package Security Scan succeeded for ${team_name}! Check the details and logs here: <${PIPELINE_URL}|Pipeline> | <${ARTIFACT_URL}|Scan Artifact>"
       fi
 
-      curl -s -X POST -H 'Content-type: application/json' \
-        --data '{"blocks":[{"type":"header","text":{"type":"plain_text","text":"'"$HEADER"'","emoji":true}},{"type":"section","text":{"type":"mrkdwn","text":"'"$BODY"'"}},'"$BUTTONS"']}' \
+      curl -X POST -H 'Content-type: application/json' \
+        --data "{\"text\": \"$MESSAGE\"}" \
         $(slack_webhook_url)
     done
   displayName: 'Notify Slack'

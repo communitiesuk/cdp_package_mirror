@@ -1,1 +1,1 @@
-geopandas==1.1.1
+geopandas==1.1.2

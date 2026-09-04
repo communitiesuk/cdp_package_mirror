@@ -85,7 +85,7 @@ tblib==3.0.0
 toml==0.10.2
 tomli==2.2.1
 tomlkit==0.13.2
-tornado==6.5.7
+tornado==6.5.8
 tqdm==4.67.1
 traitlets==5.14.3
 typing-inspection==0.4.1

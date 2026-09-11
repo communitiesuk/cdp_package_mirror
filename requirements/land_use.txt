@@ -3,4 +3,12 @@ shapely>=2.1.0
 mapbox-vector-tile<2.2,>=2.1
 numexpr>=2.8.0
 rio-tiler<9.3,>=9.0
+pmtiles<4,>3.4
+quadbin<0.3,>=0.2
+h3<5,>=4.0
+netcdf4<4,>=1.6
+planetary-computer<2,>=1
+earthaccess<1,>=0.11
+tippecanoe<3,>2.45
+mapclassify<3,>=2.6
 

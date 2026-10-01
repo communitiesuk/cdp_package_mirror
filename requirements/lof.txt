@@ -85,13 +85,13 @@ tblib==3.0.0
 toml==0.10.2
 tomli==2.2.1
 tomlkit==0.13.2
-tornado==6.5.8
+tornado==6.5.10
 tqdm==4.67.1
 traitlets==5.14.3
 typing-inspection==0.4.1
 typing_extensions==4.12.2
 tzdata==2025.1
-urllib3==2.7.0
+urllib3==2.8.0
 validators==0.35.0
 wcwidth==0.2.13
 wrapt==1.17.2

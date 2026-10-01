@@ -11,4 +11,5 @@ planetary-computer<2,>=1
 earthaccess<1,>=0.11
 tippecanoe<3,>2.45
 mapclassify<3,>=2.6
+gptables>=2.0.2
 

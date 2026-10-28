@@ -1,0 +1,7 @@
+rasterio>=1.5.2
+brotli>=1.2.1
+geopandas==1.2.0
+numpy==2.2.3
+pandas==2.2.2
+pyproj==3.8.0
+shapely>=2.1.0

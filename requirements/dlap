@@ -5,3 +5,4 @@ numpy==2.2.3
 pandas==2.2.2
 pyproj==3.8.0
 shapely>=2.1.0
+trustore==0.10.5

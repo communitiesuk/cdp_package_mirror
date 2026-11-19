@@ -5,3 +5,5 @@ numpy==2.2.3
 pandas==2.2.2
 pyproj==3.8.0
 shapely>=2.1.0
+pyogrio>=0.13.0
+ijson>=3.6.0
